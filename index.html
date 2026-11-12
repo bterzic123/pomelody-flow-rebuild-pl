@@ -1,0 +1,946 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<meta name="color-scheme" content="light">
+<title>Audyt wzrostu — pomelody</title>
+<meta name="description" content="pomelody pyta każdą rodzinę o dziecko, a potem pokazuje wszystkim ten sam paywall. Oto pierwsze uruchomienie, które odpowiada każdej rodzinie, w designie pomelody.">
+<link rel="icon" href="img/icon.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Shell: white, pomelody's aubergine ink and their coral as the one accent. Phone: the app's coral, yellow, cream, pink and aubergine. */
+:root{
+  color-scheme:only light;
+  --ink:#2D1D32; --ink-soft:#3E2C43; --muted:rgba(45,29,50,.62); --faint:rgba(45,29,50,.22); --line:rgba(45,29,50,.09);
+  --soft:#FCF9F7; --cream:#FAF4F1; --cream2:#F1E7E1; --white:#FFFFFF;
+  --gold:#F07A59; --gold-lift:#C8532F; --gold-soft:#FDE3D9;
+  --mark:linear-gradient(transparent 60%,rgba(240,122,89,.34) 60%);
+  --f:'Inter',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+  --fp:'Nunito',-apple-system,'Helvetica Neue',sans-serif;
+  --fo:'Open Sans',-apple-system,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+html,body{overflow-x:clip}
+body{font-family:var(--f);color:var(--ink-soft);background:var(--white);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit}
+img,video{display:block}
+em.g{font-style:normal;background:var(--mark);padding:0 2px}
+.hero em.g{background:none;color:#FF9A7C}
+.wrap{max-width:1200px;margin:0 auto;padding:0 40px}
+@media(max-width:700px){.wrap{padding:0 16px}}
+
+/* ---- top bar: a floating frosted pill ---- */
+.nav{position:sticky;top:0;z-index:50;padding:12px 12px 0}
+.nav-in{max-width:1200px;margin:0 auto;padding:0 10px 0 22px;height:60px;display:flex;align-items:center;gap:14px;background:rgba(250,244,241,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:999px;box-shadow:0 1px 0 var(--line)}
+@media(max-width:700px){.nav-in{padding:0 8px 0 16px;gap:8px}}
+.logo{display:flex;align-items:center;gap:7px;flex:none}
+.logo i{width:24px;height:24px;background:var(--gold);-webkit-mask:url(img/mark.svg) center/contain no-repeat;mask:url(img/mark.svg) center/contain no-repeat}
+.logo b{width:92px;height:19px;background:var(--ink);-webkit-mask:url(img/wordmark.svg) left center/contain no-repeat;mask:url(img/wordmark.svg) left center/contain no-repeat}
+.nav-in .sep{width:1px;height:20px;background:var(--faint)}
+.nav-in .lbl{font-size:14px;color:var(--muted);white-space:nowrap}
+@media(max-width:700px){.nav-in .sep,.nav-in .lbl{display:none}}
+.tabs{margin-left:auto;display:flex;gap:2px}
+.tabs button{height:40px;padding:0 16px;border-radius:999px;font-size:15px;font-weight:500;color:var(--muted)}
+@media(max-width:400px){.tabs button{padding:0 10px;font-size:14px}.logo b{display:none}}
+.tabs button.on{background:var(--white);color:var(--ink);box-shadow:0 1px 3px rgba(45,29,50,.1)}
+.demo{height:44px;padding:0 20px;border-radius:999px;background:var(--ink);color:#fff;font-size:15px;font-weight:500;display:flex;align-items:center;text-decoration:none;white-space:nowrap}
+.demo:hover{background:#1b1020}
+@media(max-width:560px){.nav .demo{display:none}}
+
+.view{display:none}.view.on{display:block}
+
+/* ======================= OVERVIEW: the app's aubergine and its wall of artwork ======================= */
+.aub-bg{background-color:#2D1D32}
+.hero-frame{margin:-72px 12px 0;border-radius:20px;overflow:hidden;position:relative;color:#fff;min-height:720px;display:flex;align-items:flex-end}
+.hero-frame::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(45,29,50,.95) 0%,rgba(45,29,50,.72) 55%,rgba(45,29,50,.3) 100%);pointer-events:none}
+.artwall{position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:.42}
+.artwall div{position:absolute;left:0;right:0;height:50%;background:url(img/wall.jpg) 0 0/auto 100% repeat-x;animation:drift 90s linear infinite}
+.artwall div:nth-child(2){top:50%;animation-duration:120s;animation-direction:reverse;background-position:300px 0}
+@keyframes drift{to{background-position-x:-1180px}}
+@media(prefers-reduced-motion:reduce){.artwall div{animation:none}}
+.hero-in{position:relative;z-index:2;width:100%;display:grid;grid-template-columns:1.25fr .75fr;gap:30px;align-items:end;padding-top:150px;padding-bottom:56px}
+@media(max-width:900px){.hero-frame{min-height:0}.hero-in{grid-template-columns:1fr;padding-top:120px;padding-bottom:36px}}
+.eyebrow{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.75);font-weight:500}
+.hero h1{font-size:clamp(38px,5.2vw,68px);line-height:1.04;font-weight:600;letter-spacing:-.03em;margin-top:16px;max-width:820px}
+.hero .lead{font-size:clamp(17px,1.7vw,19px);line-height:1.55;margin-top:20px;max-width:660px;color:rgba(255,255,255,.86)}
+.cta-row{display:flex;gap:10px;align-items:center;margin-top:28px;flex-wrap:wrap}
+.btn-w{height:50px;padding:0 24px;border-radius:999px;background:#fff;color:var(--ink);font-size:17px;font-weight:500;display:inline-flex;align-items:center;gap:10px}
+.btn-w:hover{background:var(--cream)}
+.btn-o{height:50px;padding:0 22px;border-radius:999px;background:rgba(255,255,255,.14);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:17px;font-weight:500;display:inline-flex;align-items:center;gap:8px}
+.btn-o:hover{background:rgba(255,255,255,.24)}
+.byline{margin-top:16px;font-size:14px;color:rgba(255,255,255,.66)}
+.fan{position:relative;height:400px}
+.fan img{position:absolute;width:176px;aspect-ratio:9/19;object-fit:cover;object-position:top;border-radius:18px;border:4px solid #1d1220;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.fan .j{width:84px;height:84px;border-radius:22px;border:0;aspect-ratio:auto;left:40%;bottom:0;z-index:4}
+@media(max-width:900px){.fan{height:280px}.fan img{width:122px;border-width:3px;border-radius:13px}.fan .j{width:62px;height:62px;border-radius:16px}}
+
+.stats{margin:12px 12px 0;border-radius:20px;background:var(--cream)}
+.stats .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
+.stat{padding:30px 18px;text-align:center;border-left:1px solid var(--line)}
+.stat:first-child{border-left:0}
+.stat b{display:block;font-size:38px;font-weight:600;letter-spacing:-.03em;line-height:1.1;color:var(--ink)}
+.stat b i{font-style:normal;color:var(--gold)}
+.stat span{display:block;font-size:14px;color:var(--muted);margin-top:6px;line-height:1.35}
+@media(max-width:800px){.stats .wrap{grid-template-columns:repeat(2,1fr)}.stat:nth-child(3){border-left:0}.stat{border-top:1px solid var(--line)}.stat:nth-child(-n+2){border-top:0}}
+
+.sec{padding:96px 0}
+@media(max-width:700px){.sec{padding:64px 0}}
+.sec-h{font-size:clamp(30px,3.9vw,48px);line-height:1.08;font-weight:600;letter-spacing:-.03em;max-width:880px;color:var(--ink)}
+.sec-h b{font-weight:600;color:var(--muted)}
+.sec-p{font-size:18px;line-height:1.6;color:var(--muted);margin-top:18px;max-width:780px}
+.kick{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:14px}
+
+.about{display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:start}
+@media(max-width:860px){.about{grid-template-columns:1fr}}
+.flowp{margin-top:26px;display:flex;flex-direction:column;gap:10px}
+.flowp div{display:flex;gap:12px;align-items:flex-start;font-size:16px;color:var(--ink-soft);line-height:1.45}
+.flowp i{font-style:normal;flex:none;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;display:grid;place-items:center;font-size:12px;margin-top:1px}
+.flowp b{font-weight:600;color:var(--ink)}
+.flowp .k2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500;margin-top:8px}
+.note{background:var(--cream);border-radius:16px;padding:22px 24px}
+.note h4{font-size:17px;font-weight:600;color:var(--ink);margin-bottom:6px;display:flex;gap:10px;align-items:center}
+.note h4 i{font-style:normal;width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:12px}
+.note p{font-size:15px;color:var(--muted);line-height:1.55}
+.note+.note{margin-top:10px}
+
+/* your ads */
+.lib{background:var(--cream);border-radius:20px;padding:32px;margin-top:44px;display:grid;grid-template-columns:.9fr 1fr;gap:32px;align-items:start}
+@media(max-width:900px){.lib{grid-template-columns:1fr;padding:16px}}
+.vid{position:relative;border-radius:14px;overflow:hidden;background:#000;aspect-ratio:1/1}
+.vid video{width:100%;height:100%;object-fit:cover}
+.vid .tag{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.94);color:var(--ink);font-size:11px;font-weight:600;letter-spacing:.06em;padding:5px 10px;border-radius:999px;display:flex;gap:6px;align-items:center}
+.vid .tag::before{content:"";width:8px;height:8px;border-radius:50%;background:#1877F2}
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.strip img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:8px}
+.adb .hook{font-size:24px;font-weight:600;letter-spacing:-.01em;line-height:1.3;color:var(--ink)}
+.adb .hook small{display:block;font-size:15px;font-weight:400;color:var(--muted);margin-top:4px}
+.adb .meta{font-size:13.5px;color:var(--muted);margin-top:10px}
+.adb dl{margin-top:8px;font-size:15px;line-height:1.5}
+.adb dt{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:14px;font-weight:600}
+.adb dd{color:var(--ink-soft)}
+.adb .go{margin-top:20px}
+.adb .go button{height:48px;padding:0 24px;border-radius:999px;background:var(--ink);color:#fff;font-size:15px;font-weight:500}
+.adrows{margin-top:12px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(max-width:800px){.adrows{grid-template-columns:1fr}}
+.adrow{background:var(--cream);border-radius:16px;padding:18px 22px;display:flex;gap:16px;align-items:center}
+.adrow img{width:72px;height:72px;border-radius:12px;object-fit:cover;flex:none}
+.adrow b{display:block;font-size:16px;font-weight:600;color:var(--ink)}
+.adrow span{display:block;font-size:14px;color:var(--muted);line-height:1.5;margin-top:2px}
+.lib-foot{margin-top:16px;font-size:14px;color:var(--muted);line-height:1.55;max-width:880px}
+
+/* the five ideas */
+.list{margin-top:40px;display:flex;flex-direction:column;max-width:980px;border-top:1px solid var(--line)}
+.it{display:grid;grid-template-columns:64px 1fr;gap:18px;padding:26px 6px;cursor:pointer;border-bottom:1px solid var(--line);transition:background .2s}
+.it:hover{background:var(--soft)}
+@media(max-width:600px){.it{grid-template-columns:40px 1fr;gap:10px}}
+.it .em{font-size:22px;font-weight:600;color:var(--muted);letter-spacing:-.02em;padding-top:2px}
+.it h3{font-size:22px;font-weight:600;letter-spacing:-.02em;line-height:1.3;color:var(--ink)}
+.it p{font-size:15.5px;color:var(--muted);margin-top:6px;line-height:1.55;max-width:780px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:12px;flex-wrap:wrap}
+.out{display:inline-flex;align-items:baseline;gap:8px;background:var(--gold-soft);color:#8A3418;padding:5px 12px;border-radius:999px;font-weight:600;font-size:14.5px}
+.out small{font-weight:400;font-size:12.5px}
+.see{font-size:14.5px;color:var(--ink);font-weight:500;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--faint)}
+
+/* the outcome */
+.outc{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:40px}
+@media(max-width:860px){.outc{grid-template-columns:1fr}}
+.osh{position:relative;overflow:hidden;color:#fff;border-radius:20px;padding:36px 32px;display:flex;flex-direction:column;justify-content:flex-end;min-height:440px}
+.osh>img{position:absolute;left:0;top:0;width:100%;height:62%;object-fit:cover;opacity:.85}
+.osh::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(45,29,50,.98) 42%,rgba(45,29,50,.2) 80%)}
+.osh>*:not(img){position:relative;z-index:2}
+.osh .k{font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.osh h3{font-size:30px;font-weight:600;letter-spacing:-.03em;margin-top:8px;line-height:1.15;max-width:460px}
+.osh .nums{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.osh .nums div{background:rgba(255,255,255,.1);border-radius:16px;padding:14px 20px;min-width:130px}
+.osh .nums b{display:block;font-size:40px;font-weight:600;letter-spacing:-.03em;line-height:1;color:#FF9A7C}
+.osh .nums span{font-size:13.5px;color:rgba(255,255,255,.8)}
+.osh .cap{font-size:14.5px;color:rgba(255,255,255,.78);margin-top:18px;line-height:1.5;max-width:470px}
+.dos{display:flex;flex-direction:column;gap:12px}
+.do{background:var(--cream);border-radius:20px;padding:24px 26px;flex:1}
+.do .k{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:6px}
+.do h4{font-size:20px;font-weight:600;letter-spacing:-.02em;color:var(--ink)}
+.do p{font-size:15px;color:var(--muted);margin-top:6px;line-height:1.55}
+.endcta{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:40px}
+.btn-k{height:52px;padding:0 26px;border-radius:999px;background:var(--ink);color:#fff;font-size:17px;font-weight:500;display:inline-flex;align-items:center}
+.btn-k:hover{background:#1b1020}
+.btn-l{height:52px;padding:0 24px;border-radius:999px;background:var(--cream);color:var(--ink);font-size:17px;font-weight:500;display:inline-flex;align-items:center;text-decoration:none}
+.foot{font-size:13px;color:var(--muted);line-height:1.6;padding:30px 0 60px;border-top:1px solid var(--line);margin-top:36px}
+
+/* ======================= PROTOTYPE VIEW ======================= */
+.pwv{padding-top:48px;padding-bottom:70px}
+.pwv h1{font-size:clamp(34px,4.6vw,56px);font-weight:600;line-height:1.04;letter-spacing:-.03em;color:var(--ink)}
+.pwv h1 b{font-weight:600;color:var(--muted)}
+.pwv .sub{font-size:18px;color:var(--muted);margin-top:14px;max-width:820px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px;align-items:center}
+.seg{display:inline-flex;background:var(--cream);border-radius:999px;padding:3px}
+.seg button{height:36px;padding:0 14px;border-radius:999px;font-size:14px;font-weight:500;color:var(--muted)}
+.seg button.on{background:var(--white);color:var(--ink);box-shadow:0 1px 3px rgba(45,29,50,.12)}
+.wt{height:42px;padding:0 18px;border-radius:999px;background:var(--ink);color:#fff;font-size:14.5px;font-weight:500;display:inline-flex;align-items:center;gap:8px}
+.wt.on{background:var(--gold);color:#fff}
+.steps{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.steps button{height:44px;padding:0 18px;border-radius:999px;background:var(--cream);font-size:15px;font-weight:500;color:var(--ink-soft);transition:all .15s}
+.steps button:hover{background:var(--cream2)}
+.steps button.on{background:var(--ink);color:#fff}
+.steps button.td{background:#fff;box-shadow:inset 0 0 0 1.5px var(--faint);color:var(--muted)}
+.steps button.td.on{background:var(--muted);color:#fff;box-shadow:none}
+.stcap{margin-top:14px;font-size:15.5px;color:var(--muted);min-height:24px;max-width:900px}
+.stcap b{font-weight:600;color:var(--ink)}
+.dcap{margin-top:14px;height:0;overflow:hidden;transition:height .25s}
+.dcap.on{height:58px}
+.dcap-in{display:flex;align-items:center;gap:14px;background:var(--ink);color:#fff;border-radius:16px;padding:0 18px;height:58px;font-size:15px}
+.dcap-in .pr{flex:none;width:120px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden}
+.dcap-in .pr i{display:block;height:100%;width:0;background:#FF9A7C}
+.dcap-in span{flex:1}
+@media(max-width:600px){.dcap.on{position:fixed;left:8px;right:8px;bottom:8px;z-index:60;margin:0}.dcap-in .pr{width:60px}.dcap-in{font-size:13.5px}}
+.trio{display:flex;gap:28px;justify-content:center;margin-top:26px;--sc:.8}
+@media(max-width:899px){.trio{justify-content:flex-start;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 16px 14px;margin-left:-16px;margin-right:-16px;gap:16px}}
+.tcol{flex:none;display:flex;flex-direction:column;align-items:center;scroll-snap-align:center}
+.apill{display:flex;align-items:center;gap:8px;height:34px;padding:0 14px 0 6px;border-radius:999px;background:var(--cream);font-size:13.5px;font-weight:500;color:var(--ink-soft);margin-bottom:14px;max-width:calc(390px * var(--sc) + 20px);white-space:nowrap;overflow:hidden}
+.apill .mt{height:24px;padding:0 9px;border-radius:99px;background:var(--ink);color:#fff;font-size:11.5px;display:inline-flex;align-items:center;flex:none}
+.apill .mt.ad{background:#1877F2}
+.apill .tx{overflow:hidden;text-overflow:ellipsis}
+.pbox{width:calc(390px * var(--sc));height:calc(844px * var(--sc));position:relative}
+.phone{position:absolute;left:0;top:0;width:390px;height:844px;transform:scale(var(--sc));transform-origin:0 0;border-radius:58px;background:#120b14;padding:12px;box-shadow:0 30px 60px rgba(45,29,50,.22),0 0 0 2px #2c2030 inset}
+.tcol.ring .phone{box-shadow:0 30px 60px rgba(45,29,50,.22),0 0 0 6px var(--ring)}
+.tlab{margin-top:16px;text-align:center;max-width:calc(390px * var(--sc) + 10px)}
+.tlab b{display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);font-weight:600}
+.tlab span{display:block;font-size:14px;color:var(--muted);margin-top:4px;line-height:1.45}
+.finger{position:absolute;z-index:30;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 0 0 2px rgba(45,29,50,.35),0 6px 18px rgba(0,0,0,.35);pointer-events:none;opacity:0;transition:left .38s var(--ease),top .38s var(--ease),transform .12s,opacity .2s}
+.finger.on{opacity:1}.finger.press{transform:scale(.72)}
+
+/* ---- inside the phone: pomelody, as the app ships ---- */
+.scr{position:absolute;inset:12px;border-radius:46px;overflow:hidden;color-scheme:only light;
+  --p-coral:#F07A59; --p-coral2:#FF8563; --p-yel:#FDCC70; --p-cream:#FAF4F1; --p-pink:#E3C4D3; --p-ink:#432A4C; --p-mute:rgba(67,42,76,.62);
+  --d-bg:#2D1D32; --d-card:#2C1F30; --d-card2:#3A2A40; --d-ink:#FFFFFF; --d-ink2:rgba(255,255,255,.8); --d-mute:rgba(255,255,255,.55); --d-line:rgba(255,255,255,.16); --d-search:#4A3650; --d-banner:#FEEECF;
+  background:var(--p-cream);color:var(--p-ink);font-family:var(--fp);display:flex;flex-direction:column}
+.phone.lt .scr{--d-bg:#FAF4F1; --d-card:#FFFFFF; --d-card2:#F1E6E0; --d-ink:#2D1D32; --d-ink2:rgba(45,29,50,.8); --d-mute:rgba(45,29,50,.55); --d-line:rgba(45,29,50,.14); --d-search:#EADDD6}
+.scr.bg-coral{background:var(--p-coral);color:#fff}
+.scr.bg-yel{background:var(--p-yel)}
+.scr.bg-pink{background:var(--p-pink)}
+.scr.bg-dark{background:var(--d-bg);color:var(--d-ink)}
+.scr.bg-black{background:#000;color:#fff}
+.sb{height:50px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 30px 0 36px;font-size:15px;font-weight:700;font-family:-apple-system,sans-serif;position:relative;z-index:6;color:#1b1b1b}
+.bg-coral .sb,.bg-black .sb,.bg-dark .sb{color:#fff}
+.phone.lt .bg-dark .sb{color:#1b1b1b}
+.sb .isl{position:absolute;left:50%;top:11px;width:120px;height:34px;margin-left:-60px;background:#000;border-radius:20px}
+.sb .ic{display:flex;gap:5px;align-items:center}
+.scr-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;position:relative;padding:0 22px 18px}
+.scr-body::-webkit-scrollbar{display:none}
+.scr-body.col{display:flex;flex-direction:column}
+.scr-foot{flex:none;padding:10px 22px 30px;position:relative;z-index:4}
+.scr-foot.sep{box-shadow:0 -1px 0 var(--d-line);background:var(--d-bg)}
+.pm-btn{display:flex;align-items:center;justify-content:center;width:100%;height:52px;border-radius:999px;background:var(--p-coral);color:#fff;font:700 16px/1 var(--fp);box-shadow:0 5px 12px rgba(160,70,40,.22)}
+.bg-dark .pm-btn{background:var(--p-coral2);box-shadow:none}
+.pm-btn.wh{background:#fff;color:var(--p-ink);box-shadow:none}
+.pm-skip{display:block;width:100%;text-align:center;font:800 15px/1 var(--fp);color:var(--p-ink);margin-top:20px}
+.pm-dots{display:flex;gap:9px;justify-content:center;padding-top:14px}
+.pm-dots i{width:9px;height:9px;border-radius:50%;background:rgba(240,122,89,.28)}
+.pm-dots i.on{background:var(--p-coral)}
+.pm-h{text-wrap:balance;text-align:center;font:800 23px/1.25 var(--fp);color:var(--p-ink);margin-top:24px;letter-spacing:-.005em}
+.pm-s{text-align:center;font-size:14px;color:var(--p-ink);margin-top:10px;font-weight:500}
+.pm-ill{display:block;margin:14px auto 0;height:118px;object-fit:contain}
+.pm-opts{display:flex;flex-direction:column;gap:9px;margin-top:16px}
+.pm-opt{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:46px;padding:10px 16px;border-radius:10px;background:#fff;text-align:left;font:500 14.5px/1.3 var(--fp);color:var(--p-ink);border:1.5px solid transparent;transition:border-color .15s}
+.pm-opt.on{border-color:var(--p-coral)}
+.pm-opt .ck{flex:none;width:22px;height:22px;border-radius:50%;background:var(--p-coral);display:none;place-items:center}
+.pm-opt.on .ck{display:grid}
+.pm-opt .ck svg{width:12px;height:12px;stroke:#fff;stroke-width:3.4;fill:none}
+.fromad{display:inline-flex;gap:7px;align-items:center;height:28px;padding:0 12px;border-radius:999px;background:rgba(24,119,242,.13);color:#1458B8;font:700 11.5px/1 var(--fp);margin:12px auto 0}
+.bg-coral .fromad{background:rgba(255,255,255,.22);color:#fff}
+.pm-field{width:100%;height:52px;border-radius:10px;border:1.5px solid rgba(255,255,255,.85);background:transparent;margin-top:34px;text-align:center;font:800 18px/1 var(--fp);color:#fff;outline:0}
+.pm-field::placeholder{color:rgba(255,255,255,.75)}
+.pm-p{text-align:center;font-size:15px;line-height:1.6;color:var(--p-ink);margin-top:22px;font-weight:500}
+.pm-card{background:#fff;border-radius:14px;padding:16px 16px 18px;margin-top:20px;box-shadow:0 4px 14px rgba(67,42,76,.08)}
+.pm-card h4{font-size:15px;font-weight:800}
+.pm-in{position:relative;margin-top:16px}
+.pm-in label{position:absolute;left:10px;top:-8px;background:#fff;padding:0 4px;font-size:11px;color:var(--p-mute);font-weight:600}
+.pm-in input{width:100%;height:46px;border-radius:8px;border:1.5px solid rgba(67,42,76,.28);padding:0 14px;font:700 15px/1 var(--fp);color:var(--p-ink);outline:0;background:#fff}
+.pm-in input:focus{border-color:var(--p-coral)}
+.pm-add{display:block;text-align:center;margin-top:20px;font:800 14px/1 var(--fp);color:var(--p-coral);width:100%}
+.shape{position:absolute;pointer-events:none}
+
+/* welcome (proposed) and sign-in (theirs) */
+.pm-wel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 26px 40px}
+.pm-ring{width:118px;height:118px;background:#fff;-webkit-mask:url(img/mark.svg) center/contain no-repeat;mask:url(img/mark.svg) center/contain no-repeat;margin-top:30px}
+.pm-wel h2{font:800 27px/1.22 var(--fp);margin-top:28px;color:#fff}
+.pm-wel p{font-size:15px;line-height:1.55;margin-top:12px;color:rgba(255,255,255,.92);font-weight:600}
+.pm-wel .lk{font-size:14.5px;margin-top:18px;color:rgba(255,255,255,.92);font-weight:600}
+.pm-wel .lk b{color:var(--p-ink);font-weight:800}
+.pm-legal{font-size:11.5px;text-align:center;color:rgba(255,255,255,.88);padding:0 18px 26px;font-weight:600}
+.pm-legal b{color:var(--p-ink)}
+.pm-sso{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:50px;border-radius:999px;background:#fff;color:var(--p-ink);font:800 15.5px/1 var(--fp);margin-top:12px}
+.pm-sso svg{width:22px;height:22px}
+.deco{position:absolute;width:30px;height:30px;border-radius:50%;border:3px solid rgba(255,214,160,.55);border-color:rgba(255,214,160,.55) transparent transparent rgba(255,214,160,.55);pointer-events:none}
+
+/* loader: the answers read back */
+.ld{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 10px 30px}
+.ld img{width:150px;animation:fly 1.3s ease-in-out infinite}
+@keyframes fly{50%{transform:translate(4px,-10px) rotate(3deg)}}
+.ld h3{font:600 17px/1.35 var(--fp);text-align:center;margin-top:26px;color:var(--p-ink)}
+.ld-bar{width:170px;height:7px;border-radius:4px;background:rgba(240,122,89,.22);margin-top:16px;overflow:hidden}
+.ld-bar i{display:block;height:100%;width:0;background:var(--p-coral);border-radius:4px;transition:width .25s linear}
+.ld-list{width:100%;margin-top:24px;display:flex;flex-direction:column;gap:11px}
+.ld-list div{display:flex;gap:10px;align-items:center;font-size:14px;line-height:1.35;color:rgba(67,42,76,.4);transition:color .3s;font-weight:600}
+.ld-list div.ok{color:var(--p-ink)}
+.ld-list .ck{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid rgba(240,122,89,.3);display:grid;place-items:center}
+.ld-list div.ok .ck{background:var(--p-coral);border-color:var(--p-coral)}
+.ld-list .ck svg{width:12px;height:12px;stroke:#fff;stroke-width:3.4;fill:none;opacity:0}
+.ld-list div.ok .ck svg{opacity:1}
+.ld-list b{color:#C8532F;font-weight:800}
+
+/* payoff: the child's own start */
+.po{background:#fff;border-radius:18px;padding:16px;margin-top:18px;display:flex;gap:14px;align-items:center;box-shadow:0 4px 14px rgba(67,42,76,.08)}
+.po img{width:78px;height:78px;border-radius:50%;flex:none}
+.po b{display:block;font:800 18px/1.2 var(--fp)}
+.po small{display:block;font-size:13px;color:var(--p-mute);margin-top:4px;font-weight:600}
+.po u{text-decoration:none;display:inline-block;margin-top:7px;background:var(--p-coral);color:#fff;font:800 11.5px/1 var(--fp);padding:6px 10px;border-radius:999px}
+.mine{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.mine div{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,.72);border-radius:14px;padding:9px 12px}
+.mine img{flex:none;width:42px;height:42px;border-radius:11px;object-fit:cover}
+.mine b{display:block;font-size:14.5px;font-weight:800}
+.mine small{display:block;font-size:12px;color:var(--p-mute);margin-top:1px;font-weight:600}
+.pm-note{font-size:12.5px;color:var(--p-ink);margin-top:12px;text-align:center;font-weight:600}
+
+/* paywall */
+.pw-wall{flex:none;height:150px;background:url(img/wall.jpg) center 30%/cover;position:relative}
+.pw-wall::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(45,29,50,.15) 30%,var(--d-bg) 100%)}
+.pw-x{position:absolute;right:16px;top:62px;z-index:7;width:34px;height:34px;border-radius:50%;background:var(--p-coral);display:grid;place-items:center}
+.pw-x svg{width:16px;height:16px;stroke:#fff;stroke-width:3;fill:none}
+.pw-h{text-align:center;font:800 21.5px/1.28 var(--fp);margin-top:2px;color:var(--d-ink);text-wrap:balance}
+.pw-chip{display:flex;justify-content:center;margin-top:10px}
+.pw-chip span{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:999px;background:var(--d-card2);font-size:12px;font-weight:700;color:var(--d-ink2);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pw-chip b{color:var(--p-coral2)}
+.pw-ck{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.pw-ck div{display:flex;gap:12px;align-items:flex-start;font-size:13.5px;line-height:1.4;color:var(--d-ink);font-weight:600}
+.pw-ck svg{flex:none;width:16px;height:16px;stroke:var(--d-ink);stroke-width:2.6;fill:none;margin-top:2px}
+.pw-tog{display:flex;margin:16px auto 0;width:max-content;background:var(--d-card2);border-radius:999px;padding:3px}
+.pw-tog button{height:32px;padding:0 20px;border-radius:999px;font:700 13.5px/1 var(--fp);color:var(--d-ink2)}
+.pw-tog button.on{background:var(--p-coral);color:#fff}
+.plans{margin-top:16px}
+.plan{position:relative;display:block;width:100%;text-align:left;background:var(--d-card);color:var(--d-ink);border-radius:12px;padding:11px 14px 11px 44px;margin-bottom:12px;border:1.5px solid var(--d-line);font-family:var(--fp)}
+.plan.on{border-color:var(--p-coral2)}
+.plan .rd{position:absolute;left:14px;top:13px;width:20px;height:20px;border-radius:50%;background:var(--d-line)}
+.plan.on .rd{background:var(--p-coral2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/11px no-repeat}
+.plan .tg{position:absolute;top:-10px;right:12px;background:var(--p-coral2);color:#fff;font:800 10.5px/1 var(--fp);padding:5px 8px;border-radius:6px}
+.plan b{display:block;font-size:15.5px;font-weight:800}
+.plan small{display:block;font-size:12.5px;color:var(--d-ink2);margin-top:3px;font-weight:600}
+.tl{margin-top:4px;background:var(--d-card2);border-radius:14px;padding:12px 14px}
+.tl div{display:flex;gap:11px;align-items:flex-start;position:relative;padding-bottom:10px}
+.tl div:last-child{padding-bottom:0}
+.tl div:not(:last-child)::before{content:"";position:absolute;left:8px;top:18px;bottom:0;width:2px;background:var(--d-line)}
+.tl i{flex:none;width:18px;height:18px;border-radius:50%;background:var(--p-coral2);margin-top:1px}
+.tl div:nth-child(2) i{background:var(--p-yel)}
+.tl div:nth-child(3) i{background:var(--d-ink2)}
+.tl b{display:block;font-size:13px;font-weight:800;color:var(--d-ink)}
+.tl small{display:block;font-size:12px;color:var(--d-ink2);font-weight:600;margin-top:1px}
+.proof{margin-top:16px;text-align:center}
+.proof .st{font-size:13px;font-weight:700;color:var(--d-ink2)}
+.proof .st i{font-style:normal;color:#F5B300;letter-spacing:1px}
+.proof h4{font:800 16px/1.3 var(--fp);color:var(--d-ink);margin-top:6px}
+.rev{margin-top:10px;background:var(--d-card2);border-radius:14px;padding:12px 14px;text-align:left}
+.rev p{font-size:12.5px;line-height:1.5;color:var(--d-ink);font-weight:600}
+.rev .tr{font-size:12px;color:var(--d-mute);margin-top:6px;line-height:1.45;font-family:var(--f);font-weight:500}
+.rev small{display:block;font-size:11px;color:var(--d-mute);margin-top:6px;font-weight:600}
+.legal{font-size:10.5px;line-height:1.55;color:var(--d-mute);margin-top:14px;font-weight:600}
+.fcap{font-size:11.5px;color:var(--d-ink2);text-align:center;margin-top:9px;font-weight:700;line-height:1.4}
+.flink{display:block;text-align:center;font-size:12.5px;color:var(--d-mute);margin-top:8px;width:100%;font-weight:700}
+
+/* today's paywall, as it ships */
+.t-sheet{position:absolute;left:0;right:0;top:50px;bottom:0;background:var(--d-bg);border-radius:22px 22px 0 0;display:flex;flex-direction:column}
+.t-x{position:absolute;right:18px;top:14px;width:28px;height:28px;z-index:3}
+.t-x svg{width:28px;height:28px;stroke:var(--d-ink);stroke-width:2.4;fill:none}
+.t-h{text-align:center;font:700 19px/1.3 var(--fo);margin-top:44px;color:var(--d-ink);padding:0 10px}
+.t-rows{display:flex;flex-direction:column;gap:14px;margin:16px 26px 0}
+.t-rows div{display:flex;gap:14px;align-items:center;font-size:12.5px;line-height:1.4;color:var(--d-ink);font-family:var(--fo)}
+.t-rows img{width:36px;height:36px;object-fit:contain;flex:none}
+.t-wall{height:210px;background:url(img/wall.jpg) center/cover;margin-top:16px}
+.t-join{text-align:center;font:700 15.5px/1.35 var(--fo);color:var(--d-ink);margin-top:10px;padding:0 20px}
+.t-btn{margin:14px 20px 0;height:48px;border-radius:999px;background:var(--p-coral2);color:var(--p-ink);font:700 15px/1 var(--fo);display:flex;align-items:center;justify-content:center;width:calc(100% - 40px)}
+.t-sm{font-size:11px;text-align:center;color:var(--d-ink);margin:10px 26px 0;font-weight:700;font-family:var(--fo)}
+.t-tog{display:flex;margin:14px auto 0;width:max-content;background:var(--d-card2);border-radius:999px;padding:3px}
+.t-tog span{height:30px;padding:0 18px;border-radius:999px;font:600 13px/30px var(--fo);color:var(--d-ink2)}
+.t-tog span.on{background:var(--p-coral);color:#fff}
+.cap-today{margin:16px 0 4px;border:1.5px dashed var(--d-mute);border-radius:14px;padding:11px 12px;text-align:center;font-size:12px;color:var(--d-ink2);line-height:1.5;font-family:var(--f)}
+
+/* home, where the X lands */
+.hm{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding:0 0 10px}
+.hm::-webkit-scrollbar{display:none}
+.hm-search{margin:4px 14px 0;height:36px;border-radius:9px;background:var(--d-search);display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--d-ink2);font:400 15px/1 var(--fo)}
+.hm-search svg{width:17px;height:17px;stroke:currentColor;stroke-width:2.6;fill:none}
+.hm h2{font:700 25px/1.2 var(--fo);margin:16px 18px 0;color:var(--d-ink)}
+.hm-tiles{display:flex;gap:10px;margin:14px 0 0 18px}
+.hm-tiles div{width:112px;flex:none;text-align:center;font:400 12px/1.2 var(--fo);color:var(--d-ink)}
+.hm-tiles img{width:112px;height:112px;border-radius:12px;object-fit:cover;margin-bottom:7px}
+.hm-ban{margin-top:18px;background:var(--d-banner);color:#432A4C;display:flex;gap:10px;align-items:center;padding:14px 18px}
+.hm-ban b{display:block;font:400 19px/1.2 var(--fo)}
+.hm-ban small{display:block;font:400 13px/1.35 var(--fo);margin-top:6px}
+.hm-ban img{width:96px;height:96px;border-radius:12px;object-fit:cover;flex:none;margin-left:auto}
+.hm h3{font:400 21px/1.2 var(--fo);margin:18px 18px 0;color:var(--d-ink)}
+.hm-age{display:flex;gap:12px;margin:12px 0 0 18px}
+.hm-age div{width:96px;flex:none;text-align:center;font:400 12px/1.2 var(--fo);color:var(--d-ink);position:relative}
+.hm-age img{width:96px;height:96px;border-radius:50%;margin-bottom:7px;transition:box-shadow .2s}
+.hm-age div.me img{box-shadow:0 0 0 4px var(--p-coral2)}
+.hm-age div.me::after{content:attr(data-me);position:absolute;top:-6px;left:50%;transform:translateX(-50%);background:var(--p-coral2);color:#fff;font:800 10px/1 var(--fp);padding:4px 8px;border-radius:999px;white-space:nowrap}
+.tabbar{flex:none;height:76px;padding-bottom:18px;background:var(--d-bg);display:flex;align-items:center;justify-content:space-around;font:400 10.5px/1 var(--fo);color:var(--d-ink)}
+.tabbar div{display:flex;flex-direction:column;align-items:center;gap:4px}
+.tabbar div.on{color:var(--p-coral2)}
+.tabbar svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.9;fill:none}
+
+/* system dialogs */
+.sys{position:absolute;inset:0;z-index:20;background:rgba(0,0,0,.42);display:flex;align-items:center;justify-content:center;font-family:-apple-system,sans-serif}
+.sys-in{width:286px;border-radius:24px;background:rgba(40,40,42,.97);color:#fff;padding:20px 18px 14px;text-align:left}
+.sys-in h5{font-size:16.5px;font-weight:600;line-height:1.3}
+.sys-in p{font-size:13px;line-height:1.45;opacity:.72;margin-top:8px}
+.sys-in .bt{display:flex;gap:10px;margin-top:14px}
+.sys-in button{flex:1;height:44px;border-radius:999px;background:rgba(120,120,128,.3);font-size:16px;font-weight:500;color:#fff}
+
+/* the Meta ad, where the install starts */
+.reel{position:absolute;inset:0;background:#000;color:#fff;font-family:-apple-system,sans-serif;display:flex;flex-direction:column}
+.reel .rtop{position:absolute;top:56px;left:18px;right:18px;display:flex;justify-content:space-between;font-weight:700;font-size:20px;z-index:3}
+.reel video{position:absolute;left:0;right:0;top:170px;width:100%;aspect-ratio:1/1;object-fit:cover}
+.reel .rtop svg{width:26px;height:26px;stroke:#fff;stroke-width:2}
+.reel .side{position:absolute;right:14px;bottom:200px;display:flex;flex-direction:column;gap:22px;align-items:center;font-size:11px;z-index:3}
+.reel .side svg{width:28px;height:28px;stroke:#fff;stroke-width:1.9;fill:none}
+.reel .bot{position:absolute;left:16px;right:70px;bottom:96px;z-index:3}
+.reel .who{display:flex;gap:9px;align-items:center;font-size:14px;font-weight:600}
+.reel .who i{width:34px;height:34px;border-radius:50%;background:#fff;display:grid;place-items:center}
+.reel .who i u{width:22px;height:22px;background:var(--p-coral);-webkit-mask:url(img/mark.svg) center/contain no-repeat;mask:url(img/mark.svg) center/contain no-repeat}
+.reel .who small{display:block;font-size:11.5px;opacity:.75;font-weight:400}
+.reel .bot p{font-size:13.5px;margin-top:10px;line-height:1.4}
+.reel .ins{position:absolute;left:16px;right:16px;bottom:34px;height:46px;border-radius:10px;background:#1877F2;color:#fff;font-weight:600;font-size:15px;display:flex;align-items:center;justify-content:center;z-index:3}
+
+.toast{position:absolute;left:50%;bottom:118px;transform:translateX(-50%) translateY(10px);background:rgba(255,255,255,.96);color:#2D1D32;font:600 12.5px/1.3 var(--f);padding:10px 15px;border-radius:999px;opacity:0;transition:all .25s;pointer-events:none;z-index:40;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.pulse{animation:pulse 1.6s ease-out 2}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(240,122,89,.95)}100%{box-shadow:0 0 0 16px rgba(240,122,89,0)}}
+
+.ideas{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:56px}
+@media(max-width:800px){.ideas{grid-template-columns:1fr}}
+.idea{background:var(--cream);border-radius:16px;padding:22px 24px;cursor:pointer;transition:background .15s}
+.idea:hover{background:var(--cream2)}
+.idea:last-child{grid-column:1/-1}
+.idea .n{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-lift);font-weight:600}
+.idea h3{font-size:19px;font-weight:600;letter-spacing:-.02em;margin-top:4px;line-height:1.3;color:var(--ink)}
+.idea p{font-size:14.5px;color:var(--muted);margin-top:6px;line-height:1.55}
+.idea .kept{font-size:13px;color:var(--muted);margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.qr{position:relative;overflow:hidden;display:flex;gap:26px;align-items:center;color:#fff;border-radius:20px;padding:30px 32px;margin-top:40px;flex-wrap:wrap}
+.qr::before{content:"";position:absolute;inset:0;background:url(img/wall.jpg) center/cover;opacity:.3}
+.qr>*{position:relative;z-index:2}
+.qr img.code{width:135px;height:135px;background:#fff;border-radius:12px;image-rendering:pixelated}
+.qr h3{font-size:24px;font-weight:600;letter-spacing:-.02em}
+.qr p{font-size:15px;color:rgba(255,255,255,.85);margin-top:4px;max-width:520px}
+.qr .demo{margin-left:auto;background:#fff;color:var(--ink);height:48px;padding:0 24px;font-size:16px}
+@media(max-width:1080px){.qr img.code{display:none}}
+@media(max-width:700px){.qr .demo{margin-left:0}}
+</style>
+</head>
+<body>
+
+<nav class="nav"><div class="nav-in">
+  <span class="logo" role="img" aria-label="pomelody"><i></i><b></b></span>
+  <span class="sep"></span><span class="lbl">Audyt wzrostu · Adapty</span>
+  <div class="tabs"><button data-v="over" class="on">Przegląd</button><button data-v="pw">Prototyp</button></div>
+  <a class="demo" href="https://calendly.com/d/cty4-37z-zqj" target="_blank" rel="noopener">Umów demo</a>
+</div></nav>
+
+<!-- ======================= OVERVIEW ======================= -->
+<div class="view on" id="view-over">
+  <header class="hero hero-frame aub-bg">
+    <div class="artwall" aria-hidden="true"><div></div><div></div></div>
+    <div class="wrap hero-in">
+      <div>
+        <div class="eyebrow">Audyt wzrostu · listopad 2026 · przygotowane przez Adapty</div>
+        <h1>Pytacie każdą rodzinę o dziecko. <em class="g">Paywall nigdy nie mówi jego imienia.</em></h1>
+        <p class="lead">Rodzic loguje się już na pierwszym ekranie, a potem podaje imię dziecka, rok urodzenia i czego potrzebuje, od „Do śpiewania” po „Usypianie i uspokajanie”. Potem każda rodzina czyta to samo „Try pomelody for 7 days for free”, a plany są dopiero na kolejnym ekranie. Oto pierwsze uruchomienie, które odpowiada każdej rodzinie, w Waszym designie i w Waszych cenach.</p>
+        <div class="cta-row">
+          <button class="btn-w" data-open="pw">Otwórz trzy ścieżki</button>
+          <button class="btn-o" data-walk>▶ Zobacz 30-sekundowy przegląd</button>
+        </div>
+        <p class="byline">Na podstawie Waszej aplikacji na iOS, karty w App Store i reklam, które prowadzicie w Meta.</p>
+      </div>
+      <div class="fan" aria-hidden="true">
+        <img src="img/shot-sign.jpg" style="left:0;top:70px;transform:rotate(-8deg)" alt="">
+        <img src="img/shot-quiz.jpg" style="left:29%;top:16px;transform:rotate(-1deg);z-index:2" alt="">
+        <img src="img/shot-pw.jpg" style="left:58%;top:80px;transform:rotate(7deg)" alt="">
+        <img class="j" src="img/icon.jpg" alt="">
+      </div>
+    </div>
+  </header>
+
+  <div class="stats"><div class="wrap">
+    <div class="stat"><b><i>★</i> 4,8</b><span>z 1,3 tys. ocen w polskim App Store</span></div>
+    <div class="stat"><b>300 000</b><span>rodzin, jak mówi Wasz paywall</span></div>
+    <div class="stat"><b>5</b><span>pytań, na które każda rodzina odpowiada przed paywallem</span></div>
+    <div class="stat"><b>0</b><span>z tych odpowiedzi wykorzystuje paywall</span></div>
+  </div></div>
+
+  <section class="sec"><div class="wrap about">
+    <div>
+      <div class="kick">Czym to jest</div>
+      <h2 class="sec-h">Zainstalowaliśmy pomelody, przeszliśmy pierwsze uruchomienie i przebudowaliśmy <b>ekrany między „Tell us about your children” a planami</b>.</h2>
+      <p class="sec-p">Adapty obsługuje subskrypcje w ponad 30 000 aplikacji, więc widzimy, co wpływa na zakupy na całym rynku. Prawie 500 aplikacji buduje paywalle i onboarding w Adapty Flow Builder, a przez narzędzie co miesiąc przechodzą miliony dolarów przychodu z subskrypcji. W pomelody szukaliśmy luki między tym, co aplikacja już wie o rodzinie, a tym, co jej pokazuje, gdy prosi o płatność.</p>
+      <div class="flowp">
+        <div class="k2">Wasze pierwsze uruchomienie dziś</div>
+        <div><i>1</i><span>Dwa okna systemowe przy pierwszym otwarciu: powiadomienia i sieć lokalna dla Cast.</span></div>
+        <div><i>2</i><span>„Sign in to use free for 7 days”: Google, Facebook, Apple lub e-mail. <b>Zostaje, po rozpoczęciu okresu próbnego.</b></span></div>
+        <div><i>3</i><span>Pięć pytań: imię, treści, codzienny rytm, wsparcie w rodzicielstwie, dzieci. <b>Zostają i teraz są wykorzystane.</b></span></div>
+        <div><i>4</i><span>„We select content that best suits you”, „Make yourself at home”, „Stay updated”, potem ekran główny.</span></div>
+        <div><i>5</i><span>Paywall otwiera się nad ekranem głównym. Plany są na drugim ekranie, za „Try for free”.</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="note"><h4><i>1</i>Wasz design, nie nasz</h4><p>Wasz koral #F07A59, żółte i różowe ekrany pytań, malowany bębenek, słońce, myszki i rakieta, bakłażanowy paywall ze ścianą ilustracji, przełącznik Monthly / Yearly, karty Starter, Basic i Premium oraz buzie z „Zacznij tu”. Zmienia się tylko kolejność.</p></div>
+      <div class="note"><h4><i>2</i>Wasze ceny, jak w sklepie</h4><p>149,99 zł, 249,99 zł i 299,00 zł rocznie; 17,99 zł, 29,99 zł i 39,99 zł miesięcznie, z polskiego App Store. Z tych cen wynikają Wasze oznaczenia −31%, −30% i −38%. 7 dni za darmo i przypomnienie 2 dni przed końcem, jak na Waszych ekranach. Bez wymyślonych rabatów i bez licznika.</p></div>
+      <div class="note"><h4><i>3</i>Być może część z tego już testowaliście</h4><p>Nie widzimy historii Waszych eksperymentów. Powiedzcie, co już sprawdziliście, a pójdziemy głębiej w resztę.</p></div>
+    </div>
+  </div></section>
+
+  <section class="sec" id="ads" style="padding-top:0"><div class="wrap">
+    <div class="kick">Wasze reklamy w Meta</div>
+    <h2 class="sec-h">Wasze reklamy sprzedają książki. <b>W aplikacji te książki grają.</b></h2>
+    <p class="sec-p">Każda reklama pomelody, którą widzi AppMagic, działa w Meta: filmy o Abecadle od 2023 roku, film o Angielskich Rymowankach od sierpnia 2025 i pięć kart sklepu od 4 listopada 2026. Rodzic, który instaluje aplikację dla książki, trafia na ten sam ekran logowania i ten sam paywall co wszyscy.</p>
+    <div class="lib">
+      <div>
+        <div class="vid"><video src="img/ad.mp4" autoplay muted loop playsinline poster="img/ad-1.jpg"></video><span class="tag">META · REKLAMA WIDEO</span></div>
+        <div class="strip"><img src="img/ad-1.jpg" alt=""><img src="img/ad-2.jpg" alt=""><img src="img/ad-3.jpg" alt=""><img src="img/ad-4.jpg" alt=""></div>
+      </div>
+      <div class="adb">
+        <div class="hook">„Abecadło w 60 sekund”</div>
+        <div class="meta">Meta · pierwsza emisja 13 października 2023 · 70 sekund · najmocniejsza kreacja pomelody w AppMagic · Abecadło wraca w filmie z kodami rabatowymi z 31 sierpnia 2026</div>
+        <dl>
+          <dt>W reklamie</dt><dd>Abecadło, „bestseller, ponieważ już ponad pół miliona dzieci nauczyło się dzięki niemu abecadła”, appbook „ściśle połączony z treściami w aplikacji”.</dd>
+          <dt>Obietnica</dt><dd>Piosenki z książki grają w pomelody, a za nimi czeka cały świat muzyki.</dd>
+          <dt>Dziś prowadzi do</dt><dd>„Sign in to use free for 7 days”, tych samych pięciu pytań co każda rodzina i paywalla, który nie wspomina o książce.</dd>
+          <dt>W nowej wersji</dt><dd>„Treści edukacyjnych” są już zaznaczone, ekran startu wskazuje książkę w My products, a paywall sprzedaje wszystko poza książką.</dd>
+        </dl>
+        <div class="go"><button data-adgo="0">Otwórz jej ścieżkę</button></div>
+      </div>
+    </div>
+    <div class="adrows">
+      <div class="adrow"><img src="img/t-book.png" alt=""><div><b>Angielskie Rymowanki · od 27 sierpnia 2025</b><span>Dwie wersje jednego filmu: książka z angielskimi rymowankami z dźwiękiem, pokazana do kamery. Ta sama droga do aplikacji co Abecadło.</span></div></div>
+      <div class="adrow"><img src="img/t-mar.png" alt=""><div><b>Pięć kart sklepu · od 4 listopada 2026</b><span>„Odkryj książki, muzykę i zabawy Pomelody” z SHOP NOW do shop.pomelody.com: pałeczka, Burza, zestaw instrumentów. Sprzedają sklep, nie aplikację.</span></div></div>
+    </div>
+    <p class="lib-foot">Adapty może wybrać ścieżkę przy pierwszym otwarciu na podstawie kampanii, z której przyszła instalacja, dzięki atrybucji, którą już macie. Reklama książki i reklama kołysanek mogą dostać własny pierwszy ekran tego samego dnia, bez wydawania nowej wersji aplikacji.</p>
+  </div></section>
+
+  <section class="sec" style="padding-top:0"><div class="wrap">
+    <div class="kick">Pięć pomysłów</div>
+    <h2 class="sec-h">W kolejności, w jakiej <b>testowalibyśmy je najpierw</b>.</h2>
+    <p class="sec-p">Kliknij dowolny, aby otworzyć ten ekran na wszystkich trzech telefonach.</p>
+    <div class="list" id="list"></div>
+  </div></section>
+
+  <section class="sec" style="padding-top:0"><div class="wrap">
+    <div class="kick">Potencjalny efekt</div>
+    <h2 class="sec-h">Pięć pomysłów, <b>jedno pierwsze uruchomienie na dziecko</b>.</h2>
+    <div class="outc">
+      <div class="osh aub-bg">
+        <img src="img/wall.jpg" alt="">
+        <div class="k">Razem</div>
+        <h3>Każda rodzina widzi swoje dziecko na ekranie, na którym płaci</h3>
+        <div class="nums"><div><b>+20%</b><span>rozpoczęć okresu próbnego</span></div><div><b>+15%</b><span>ARPU</span></div></div>
+        <p class="cap">Paywall dla każdej półki wiekowej to osobny test A/B przeciw dzisiejszej ścieżce, oceniany po rozpoczęciach okresu próbnego i przychodzie na instalację.</p>
+      </div>
+      <div class="dos">
+        <div class="do"><div class="k">W tym tygodniu</div><h4>Przenieście logowanie za start okresu próbnego</h4><p>Powitanie, pytania, paywall, a potem „Zaloguj się, żeby zapisać bibliotekę”. Zbudowane we Flow Builderze, działa bez wydawania nowej wersji aplikacji.</p></div>
+        <div class="do"><div class="k">Potem</div><h4>Jeden paywall, dziecko jako zmienna</h4><p>Imię, półka wiekowa i pierwszy wybór wypełniają nagłówek i etykietę. Plany, przełącznik i oś okresu próbnego są na jednym ekranie, a X prowadzi prosto do aplikacji.</p></div>
+        <div class="do"><div class="k">I mierzcie</div><h4>Oceniajcie każdą półkę po przychodzie, nie po instalacjach</h4><p>Adapty pokazuje okresy próbne, zakupy i przychód na instalację dla 0-6 m-cy, 6-18 m-cy i 1,5-3 lata oraz dla każdej kampanii w Meta, więc budżet idzie za rodzinami, które zostają.</p></div>
+      </div>
+    </div>
+    <div class="endcta"><button class="btn-k" data-open="pw">Otwórz prototyp</button><a class="btn-l" href="https://calendly.com/d/cty4-37z-zqj" target="_blank" rel="noopener">Umów demo</a></div>
+    <p class="foot">Zakresy efektów to oczekiwany wpływ na podstawie analiz i testów A/B Adapty w aplikacjach subskrypcyjnych, a nie zmierzony wzrost dla pomelody. Ekrany, teksty, ilustracje, 7 dni za darmo, przypomnienie 2 dni przed końcem i „Join the 300,000 families who love pomelody!” pochodzą z aplikacji pomelody na iOS nagranej 12 listopada 2026. Ceny w złotych (149,99 / 249,99 / 299,00 zł rocznie, 17,99 / 29,99 / 39,99 zł miesięcznie), ocena 4,8 z 1,3 tys. ocen, 48. miejsce w kategorii Muzyka i cytowana recenzja (Pstrk!, 17 sierpnia 2020) pochodzą z karty w polskim App Store. „Wartościowa muzyka zawsze pod ręką” pochodzi z pomelody.com. Reklamy i daty pochodzą z Meta, według AppMagic. Oszczędności: 149,99 zł wobec 12 × 17,99 zł = 215,88 zł daje 31%; 249,99 zł wobec 359,88 zł daje 31% (Wasze oznaczenie: −30%); 299,00 zł wobec 479,88 zł daje 38%. Miesięcznie: 149,99 zł ÷ 12 = 12,50 zł.</p>
+  </div></section>
+</div>
+
+<!-- ======================= PROTOTYPE ======================= -->
+<div class="view" id="view-pw">
+  <div class="wrap pwv">
+    <div class="kick">Prototyp · jedno pierwsze uruchomienie na dziecko</div>
+    <h1>Trzy rodziny. <b>Trzy pierwsze uruchomienia.</b></h1>
+    <p class="sub">Jedna instalacja z reklamy Abecadła, rodzic noworodka i rodzic małego dziecka. Te same ekrany, te same ceny. Klikaj kroki albo dotknij dowolnego telefonu: zmień wybór lub rok urodzenia, wybierz plan, zamknij go.</p>
+    <div class="tools">
+      <div class="seg" id="theme"><button data-th="dark" class="on">Ciemny</button><button data-th="light">Jasny</button></div>
+      <button class="wt" id="wt" data-walk>▶ 30-sekundowy przegląd</button>
+    </div>
+    <div class="steps" id="steps">
+      <button data-st="today" class="td">Dziś</button><button data-st="arrive">1 · Start</button><button data-st="name">2 · Imię</button><button data-st="need">3 · Treści</button><button data-st="child">4 · Dzieci</button><button data-st="load">5 · Ładowanie</button><button data-st="payoff">6 · Wasz start</button><button data-st="pw" class="on">7 · Paywall</button><button data-st="home">8 · W aplikacji</button>
+    </div>
+    <p class="stcap" id="stcap"></p>
+    <div class="dcap" id="dcap"><div class="dcap-in"><span id="dtx"></span><div class="pr"><i id="dpr"></i></div></div></div>
+    <div class="trio" id="trio"></div>
+    <div class="ideas" id="ideas"></div>
+    <div class="qr aub-bg">
+      <img class="code" src="img/qr.svg" alt="Kod QR do prototypu">
+      <div><h3>Wypróbuj na telefonie</h3><p>Zeskanuj, aby otworzyć trzy ścieżki w dłoni. Każdy ekran da się zbudować w Adapty Flow Builder i przetestować przeciw dzisiejszemu.</p></div>
+      <a class="demo" href="https://calendly.com/d/cty4-37z-zqj" target="_blank" rel="noopener">Umów demo</a>
+    </div>
+  </div>
+</div>
+
+<script>
+var $=function(s,r){ return (r||document).querySelector(s); }, $$=function(s,r){ return [].slice.call((r||document).querySelectorAll(s)); };
+function SV(d,w){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="'+(w||2.2)+'" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>'; }
+var CHK='<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+/* language: the phones carry English and Polish; English is on for review */
+var G={ lang:'pl', theme:'dark', step:'pw' };
+function L(en,pl){ return G.lang==='pl'&&pl?pl:en; }
+
+/* the app's own questions and answers, in its order */
+var NEED={ sing:['For singing','Do śpiewania'], calm:['Calm, soothing songs','Spokojnych, wyciszających'], dance:['Songs for moving and dancing','Piosenek do ruchu i tańczenia'], story:['Engaging stories and audio tales','Angażujących historii i audiobajek'], edu:['Educational content','Treści edukacyjnych'] };
+var NORD=['sing','calm','dance','story','edu'];
+var NSH={ sing:['songs to sing along','piosenki do śpiewania'], calm:['calm-down songs','uspokajacze'], dance:['dance songs','piosenki do tańczenia'], story:['stories and audio tales','słuchowiska i audiobajki'], edu:['learning through music','naukę przez muzykę'] };
+var RHY={ eve:['We listen in the afternoon or evening','Słuchamy muzyki po południu/ wieczorem'], trav:['We often listen while travelling','Często słuchamy muzyki w podróży'], rit:['Music is part of our rituals','Muzyka jest częścią naszych rytuałów'], home:['We’re at home, no nursery or preschool yet','Jesteśmy w domu, dziecko nie chodzi do żłobka/przedszkola'] };
+var RORD=['eve','trav','rit','home'];
+var RSH={ eve:['your afternoons and evenings','Wasze popołudnia i wieczory'], trav:['your trips','Wasze podróże'], rit:['your daily rituals','Wasze codzienne rytuały'], home:['your days at home','Wasze dni w domu'] };
+var SUP={ fun:['Worthwhile entertainment','Wartościowa rozrywka'], bil:['Bilingualism','Dwujęzyczność'], mus:['Musical development','Rozwój muzyczny'], sleep:['Falling asleep and calming down','Usypianie i uspokajanie'] };
+var SORD=['fun','bil','mus','sleep'];
+var SROW={ fun:['Radio plays and animations','Słuchowiska i animacje'], bil:['English songs and rhymes','Angielskie piosenki i rymowanki'], mus:['Live instruments, many genres','Żywe instrumenty, wiele gatunków'], sleep:['Lullabies for bedtime','Kołysanki na dobranoc'] };
+var TILE={ sing:'t-mar', calm:'envelope', dance:'t-drum', story:'nehem', edu:'sun' };
+/* the paywall headline, by the first pick */
+var HEAD={
+ sing:['Songs to sing together with {c}. Free for 7 days.','{c}: piosenki do wspólnego śpiewania. 7 dni za darmo.'],
+ calm:['Calm, soothing songs for {c}’s evenings. Free for 7 days.','{c}: spokojne, wyciszające piosenki na wieczór. 7 dni za darmo.'],
+ dance:['Songs for moving and dancing, picked for {c}. Free for 7 days.','{c}: piosenki do ruchu i tańczenia. 7 dni za darmo.'],
+ story:['Stories and audio tales for {c}. Free for 7 days.','{c}: historie i audiobajki. 7 dni za darmo.'],
+ edu:['Learning through music for {c}. Free for 7 days.','{c}: nauka przez muzykę. 7 dni za darmo.'],
+ ad:['{c} has the Abecadło. The rest of pomelody is free for 7 days.','{c} ma już Abecadło. Reszta pomelody: 7 dni za darmo.']
+};
+/* store prices, from the Polish App Store: the set the app's own −31% / −30% / −38% tags come from */
+var TIER=[ {k:'starter',n:'Starter',u:1,y:149.99,m:17.99}, {k:'basic',n:'Basic',u:2,y:249.99,m:29.99}, {k:'premium',n:'Premium',u:5,y:299.00,m:39.99} ];
+function eur(v){ return v.toFixed(2).replace('.',',')+' zł'; }
+function save(t){ return Math.round((1-t.y/(t.m*12))*100); }
+
+/* the three phones */
+var PH=[
+ { id:'ad', src:'ad', ring:'#1877F2', mt:'Reklama Meta', pill:'Appbook Abecadło', parent:'Kasia', child:'Staś', year:'2023', need:['edu','sing'], rhy:['rit'], sup:['mus'], lab:['Z reklamy Abecadła','„Treści edukacyjnych” są już zaznaczone. Ekran startu wskazuje książkę w My products; paywall sprzedaje resztę pomelody.'] },
+ { id:'baby', ring:'#F07A59', mt:'App Store', parent:'Ola', child:'Zosia', year:'2026', need:['calm','sing'], rhy:['eve'], sup:['sleep'], lab:['Rodzic noworodka','Najpierw spokojne piosenki i rocznik 2026, więc wszystko zaczyna się od wieczorów i półki 0-6 m-cy.'] },
+ { id:'tod', ring:'#E9B44C', mt:'App Store', parent:'Tomek', child:'Lena', year:'2025', need:['dance','story'], rhy:['trav'], sup:['bil'], lab:['Rodzic małego dziecka','Najpierw piosenki do tańczenia i słuchowiska, półka 6-18 m-cy i angielskie rymowanki z „Dwujęzyczność” na ekranie startu.'] }
+];
+
+var IDEAS=[
+ { t:'Zdejmijcie logowanie z pierwszego ekranu', p:'Dziś pierwszy ekran to „Sign in to use free for 7 days” z Google, Facebookiem, Apple lub e-mailem, zanim rodzic usłyszy choć jedną piosenkę. Tutaj pierwszy ekran to Wasze koralowe powitanie z jednym przyciskiem; cztery przyciski logowania pojawiają się zaraz po rozpoczęciu okresu próbnego, żeby zapisać bibliotekę rodziny. „Masz już konto? Zaloguj się” zostaje na powitaniu.', o:'CR +5–10%', u:'· ARPU +10–17%', st:'arrive', hl:'start', kept:'Zostaje: Wasz koral, Wasz znak i Wasze cztery przyciski logowania, teraz za paywallem.' },
+ { t:'Wpiszcie imię dziecka i jego wybory w nagłówek paywalla', p:'Dziś każda rodzina czyta „Try pomelody for 7 days for free”. Tutaj rodzic Zosi czyta „Zosia: spokojne, wyciszające piosenki na wieczór. 7 dni za darmo.”, rodzic Leny czyta o piosenkach do ruchu i tańczenia, a instalacja z reklamy Abecadła czyta, że książkę już mają, a reszta pomelody jest za darmo przez 7 dni.', o:'CR +15–20%', u:'do startu okresu próbnego', st:'pw', hl:'head', kept:'Zostaje: Wasza ściana ilustracji, trzy punkty i „300 000 rodzin”, teraz obok ★ 4,8 i recenzji rodzica.' },
+ { t:'Niech ładowanie i kolejny ekran powtórzą odpowiedzi', p:'Dziś „We select content that best suits you” wypełnia pasek, a potem „Make yourself at home” pokazuje każdej rodzinie te same trzy korzyści. Tutaj rakieta leci, a każda linijka nazywa wybór, półkę wiekową z roku urodzenia i rytm dnia; kolejny ekran to start dziecka: jego buzia z „Zacznij tu” i jego wybory.', o:'CR +10–15%', u:'do startu okresu próbnego', st:'load', hl:'ld', kept:'Zostaje: Wasza rakieta, Wasz pasek postępu i buzie z „Zacznij tu”.' },
+ { t:'Plany i okres próbny na pierwszym ekranie paywalla', p:'Dziś paywall otwiera się nad ekranem głównym, a plany widać dopiero po „Try for free”, na drugim ekranie. Tutaj przełącznik, trzy plany i oś 7 dni są na jednym ekranie, z wybranym rocznym Starterem. Oznaczenie liczy się z cen: 149,99 zł wobec 12 × 17,99 zł to −31%.', o:'CR +5–15%', u:'· ARPU +10–15%', st:'pw', hl:'plans', kept:'Zostaje: Wasz przełącznik Monthly / Yearly, karty Starter, Basic i Premium oraz Wasze ceny.' },
+ { t:'Zapytajcie o powiadomienia, gdy rodzina jest już w aplikacji', p:'Dziś okna o powiadomienia i o sieć lokalną dla Cast pojawiają się przy pierwszym uruchomieniu, nad ekranem logowania, zanim aplikacja cokolwiek pokaże. Tutaj żadne nie przerywa startu: o powiadomienia pytamy na ekranie głównym po paywallu, a o sieć lokalną dopiero, gdy ktoś dotknie Cast.', o:'CR +10–15%', u:'do startu okresu próbnego', st:'home', hl:'notif', kept:'Zostają oba pytania, tylko później. Okno systemowe wywołuje aplikacja; ścieżka je tylko przesuwa.' }
+];
+
+var TCAP={
+ today:'<b>Dziś:</b> ten sam paywall dla każdej rodziny, otwierany nad ekranem głównym po logowaniu i onboardingu. „Try for free” prowadzi do drugiego ekranu z planami.',
+ arrive:'<b>Krok 1. Propozycja:</b> bez okien systemowych i bez ściany logowania. Jedna instalacja z reklamy Abecadła, dwie z App Store.',
+ name:'<b>Krok 2.</b> Wasz ekran z imieniem, bez zmian. Imię wraca na ekranie głównym.',
+ need:'<b>Krok 3.</b> Wasze pytanie o treści, bez zmian. Każdy telefon ma swoje wybory; zmień je i zobacz, jak ładowanie i paywall za nimi idą.',
+ child:'<b>Krok 4.</b> Wasz ekran o dzieciach. Zmień rok urodzenia: półka wiekowa na ekranie startu i na ekranie głównym zmieni się razem z nim.',
+ load:'<b>Krok 5. Propozycja:</b> ładowanie powtarza każdą odpowiedź, zamiast tylko wypełniać pasek.',
+ payoff:'<b>Krok 6. Propozycja:</b> start dziecka zastępuje „Make yourself at home”.',
+ pw:'<b>Krok 7. Propozycja:</b> jeden paywall z imieniem dziecka, z planami i okresem próbnym na tym samym ekranie. Przewiń telefon, przełącz plan, dotknij X: zamyka się prosto do aplikacji.',
+ home:'<b>Krok 8. Propozycja:</b> ekran główny z zaznaczoną półką dziecka i pytaniem o powiadomienia dopiero tutaj, po paywallu.'
+};
+
+var COL=PH.map(function(){ return {}; });
+function initCol(i){ var p=PH[i], c=COL[i]; c.parent=p.parent; c.child=p.child; c.year=p.year; c.need=p.need.slice(); c.rhy=p.rhy.slice(); c.sup=p.sup.slice(); c.per='y'; c.tier='starter'; c.ld=0; c.notif=false; return c; }
+PH.forEach(function(p,i){ initCol(i); });
+
+function sb(){ return '<div class="sb"><span>9:41</span><i class="isl"></i><span class="ic"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2" fill="currentColor"/></svg></span></div>'; }
+function dots(n){ var h='<div class="pm-dots">'; for(var k=1;k<=9;k++) h+='<i'+(k===n?' class="on"':'')+'></i>'; return h+'</div>'; }
+function nm(o){ return L(o[0],o[1]); }
+function cname(i){ return COL[i].child||L('your child','Twoje dziecko'); }
+function shelf(i){ var y=parseInt(COL[i].year,10), a=isNaN(y)?2:2026-y;
+  if(a<=0) return {s:'0-6 m-cy',img:'baby1'}; if(a===1) return {s:'6-18 m-cy',img:'baby2'}; if(a<=3) return {s:'1,5-3 lata',img:'baby3'}; return {s:L('every shelf','wszystkie półki'),img:'baby3'}; }
+function lead(i){ return PH[i].src==='ad'?'ad':(COL[i].need[0]||'sing'); }
+function picksTxt(i){ var c=COL[i]; return (c.need.length?c.need:['sing']).slice(0,2).map(function(k){ return nm(NSH[k]); }).join(' · '); }
+
+/* ---- screens ---- */
+function scrReel(i){
+  return '<div class="reel">'+sb()+'<div class="rtop"><span>Reels</span>'+SV('<circle cx="12" cy="12" r="3"/><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/>')+'</div>'+
+   '<video src="img/ad.mp4" autoplay muted loop playsinline poster="img/ad-1.jpg"></video>'+
+   '<div class="side"><span>'+SV('<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/>')+'</span><span>'+SV('<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.8-.9L3 21l1.9-5.2A8.4 8.4 0 1 1 21 11.5z"/>')+'</span><span>'+SV('<path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>')+'</span></div>'+
+   '<div class="bot"><div class="who"><i><u></u></i><div>pomelody<small>'+L('Sponsored','Sponsorowane')+'</small></div></div><p>Abecadło w 60 sekund 📖🎶 '+L('The appbook that plays in the pomelody app.','Appbook, który gra w aplikacji pomelody.')+'</p></div>'+
+   '<button class="ins" data-act="install">'+L('Install now','Zainstaluj')+'</button></div>';
+}
+function scrStart(i){
+  var ad=PH[i].src==='ad';
+  return sb()+'<i class="deco" style="left:-8px;top:250px;transform:rotate(30deg)"></i><i class="deco" style="right:-6px;top:520px;transform:rotate(-60deg)"></i>'+
+   '<div class="pm-wel">'+(ad?'<span class="fromad">▶ '+L('From your Abecadło ad','Z reklamy Abecadła')+'</span>':'')+'<i class="pm-ring"></i>'+
+   '<h2>'+L('Valuable music,<br>always at hand','Wartościowa muzyka<br>zawsze pod ręką')+'</h2>'+
+   '<p>'+(ad?L('Your Abecadło plays here. Next to it: songs, stories and animations, free for 7 days.','Twoje Abecadło gra tutaj. Obok: piosenki, słuchowiska i animacje, 7 dni za darmo.'):L('Songs, audio stories and animations for your child. Try pomelody free for 7 days.','Piosenki, słuchowiska i animacje dla Twojego dziecka. Wypróbuj pomelody 7 dni za darmo.'))+'</p>'+
+   '<div style="width:100%;margin-top:34px" data-hl="start"><button class="pm-btn wh" data-act="next">'+L('Let’s start','Zaczynamy')+'</button><div class="lk">'+L('Already have an account? <b>Sign in</b>','Masz już konto? <b>Zaloguj się</b>')+'</div></div></div>'+
+   '<p class="pm-legal">'+L('To continue accept <b>Terms of use</b> and <b>Privacy policy</b>','Kontynuując akceptujesz <b>Regulamin</b> i <b>Politykę prywatności</b>')+'</p>';
+}
+function scrName(i){
+  return sb()+'<div class="scr-body">'+dots(1)+'<h2 class="pm-h">'+L('Let’s get to know each other','Poznajmy się')+'</h2>'+
+   '<input class="pm-field" data-f="parent" value="'+(COL[i].parent||'')+'" placeholder="'+L('What’s your name','Jak masz na imię')+'"></div>'+
+   '<div class="scr-foot"><button class="pm-btn" data-act="next">'+L('Next','Dalej')+'</button></div>';
+}
+function scrIntro(i){
+  return sb()+'<div class="scr-body">'+dots(2)+'<h2 class="pm-h">'+L('We want to get to know your family better 🧡','Chcemy lepiej poznać Waszą rodzinę 🧡')+'</h2>'+
+   '<img class="pm-ill" src="img/bear.jpg" style="height:150px;border-radius:14px;margin-top:22px" alt="">'+
+   '<p class="pm-p">'+L('We’ll ask you a few quick questions to help us choose music and content that fits your daily routine.<br><br>It only takes a moment!','Zadamy kilka krótkich pytań, żeby dobrać muzykę i treści do Waszego dnia.<br><br>To zajmie tylko chwilę!')+'</p></div>'+
+   '<div class="scr-foot"><button class="pm-btn" data-act="next">'+L('Next','Dalej')+'</button></div>';
+}
+function optList(i,key,ord,map){
+  var sel=COL[i][key];
+  return '<div class="pm-opts">'+ord.map(function(k){ return '<button class="pm-opt'+(sel.indexOf(k)>-1?' on':'')+'" data-act="opt" data-key="'+key+'" data-k="'+k+'"><span>'+nm(map[k])+'</span><span class="ck">'+CHK+'</span></button>'; }).join('')+'</div>';
+}
+function scrQ(i,n,h,img,key,ord,map,extra){
+  return sb()+'<div class="scr-body">'+dots(n)+(extra||'')+'<h2 class="pm-h">'+h+'</h2><p class="pm-s">'+L('You can pick several','Możesz wybrać kilka odpowiedzi')+'</p>'+
+   '<img class="pm-ill" src="img/'+img+'" alt="">'+optList(i,key,ord,map)+'</div>'+
+   '<div class="scr-foot"><button class="pm-btn" data-act="next">'+L('Next','Dalej')+'</button><button class="pm-skip" data-act="next">'+L('Skip','Pomiń')+'</button></div>';
+}
+function scrNeed(i){ return scrQ(i,3,L('What content do you need most?','Jakich treści najbardziej potrzebujecie?'),'drum.png','need',NORD,NEED,PH[i].src==='ad'?'<div style="display:flex"><span class="fromad">▶ '+L('Ticked from your Abecadło ad','Zaznaczone z reklamy Abecadła')+'</span></div>':''); }
+function scrRhy(i){ return scrQ(i,4,L('What does your daily rhythm look like?','Jak wygląda Wasz codzienny rytm?'),'sun.png','rhy',RORD,RHY); }
+function scrSup(i){ return scrQ(i,5,L('How can we support you as a parent?','Jak możemy Cię wesprzeć w rodzicielstwie?'),'mouse.png','sup',SORD,SUP); }
+function scrChild(i){
+  var c=COL[i];
+  return sb()+'<div class="scr-body">'+dots(6)+'<h2 class="pm-h">'+L('Tell us about your children','Opowiedz nam o swoich dzieciach')+'</h2><p class="pm-s">'+L('This information will only be used to suggest content.','Te informacje posłużą tylko do polecania treści.')+'</p>'+
+   '<div class="pm-card"><h4>'+L('Child 1','Dziecko 1')+'</h4><div class="pm-in"><label>'+L('Child’s name','Imię dziecka')+'</label><input data-f="child" value="'+c.child+'"></div>'+
+   '<div class="pm-in"><label>'+L('Year of birth','Rok urodzenia')+'</label><input data-f="year" inputmode="numeric" maxlength="4" value="'+c.year+'"></div></div>'+
+   '<button class="pm-add" data-act="add">'+L('Add another child','Dodaj kolejne dziecko')+'</button></div>'+
+   '<div class="scr-foot"><button class="pm-btn" data-act="next">'+L('Next','Dalej')+'</button><button class="pm-skip" data-act="next">'+L('Skip','Pomiń')+'</button></div>';
+}
+function loadLines(i){
+  var c=COL[i], ns=(c.need.length?c.need:['sing']), out=[], sh=shelf(i), cn=cname(i);
+  out.push(L('Picking <b>'+nm(NSH[ns[0]])+'</b> for <b>'+cn+'</b>','Wybieramy <b>'+nm(NSH[ns[0]])+'</b> dla: <b>'+cn+'</b>'));
+  if(ns[1]) out.push(L('Adding <b>'+nm(NSH[ns[1]])+'</b>','Dodajemy <b>'+nm(NSH[ns[1]])+'</b>'));
+  out.push(L('Opening the <b>'+sh.s+'</b> shelf','Otwieramy półkę <b>'+sh.s+'</b>'));
+  if(c.rhy[0]) out.push(L('Fitting it to <b>'+nm(RSH[c.rhy[0]])+'</b>','Dopasowujemy do: <b>'+nm(RSH[c.rhy[0]])+'</b>'));
+  return out.slice(0,4);
+}
+function scrLoad(i){
+  var c=COL[i], ln=loadLines(i), n=c.ld||0;
+  return sb()+'<div class="scr-body col" style="padding-bottom:0">'+dots(7)+'<div class="ld" data-hl="ld"><img src="img/rocket.png" alt=""><h3>'+L('We select content that best suits you','Wybieramy treści najlepiej dopasowane do Was')+'</h3>'+
+   '<div class="ld-bar"><i style="width:'+Math.round(100*n/ln.length)+'%"></i></div><div class="ld-list">'+ln.map(function(t,k){ return '<div'+(k<n?' class="ok"':'')+'><span class="ck">'+CHK+'</span><span>'+t+'</span></div>'; }).join('')+'</div></div></div>';
+}
+function scrPayoff(i){
+  var c=COL[i], sh=shelf(i), ns=(c.need.length?c.need:['sing']), cn=cname(i), rows='';
+  if(PH[i].src==='ad') rows+='<div><img src="img/t-book.png" alt=""><span><b>Abecadło</b><small>'+L('Your appbook’s songs, in My products','Piosenki z appbooka, w My products')+'</small></span></div>';
+  ns.slice(0,2).forEach(function(k){ rows+='<div><img src="img/'+TILE[k]+(TILE[k]==='envelope'||TILE[k]==='nehem'?'.jpg':'.png')+'" alt=""><span><b>'+nm(NEED[k])+'</b><small>'+L('For '+sh.s+', ready on home','Półka '+sh.s+', gotowe na start')+'</small></span></div>'; });
+  if(c.sup[0]) rows+='<div><img src="img/'+(c.sup[0]==='sleep'?'envelope.jpg':c.sup[0]==='bil'?'t-book.png':'t-drum.png')+'" alt=""><span><b>'+nm(SROW[c.sup[0]])+'</b><small>'+L('From “'+nm(SUP[c.sup[0]])+'”','Z odpowiedzi „'+nm(SUP[c.sup[0]])+'”')+'</small></span></div>';
+  return sb()+'<div class="scr-body">'+dots(8)+'<h2 class="pm-h" style="font-size:22px">'+L(cn+'’s start in pomelody','Start w pomelody: '+cn)+'</h2>'+
+   '<div class="po" data-hl="po"><img src="img/'+sh.img+'.png" alt=""><div><b>'+cn+'</b><small>'+L('Born '+c.year,'Rocznik '+c.year)+'</small><u>'+L('Shelf ','Półka ')+sh.s+'</u></div></div>'+
+   '<div class="mine">'+rows+'</div><p class="pm-note">'+L('New content every week, for '+nm(RSH[c.rhy[0]||'eve'])+'.','Nowe treści co tydzień, na '+nm(RSH[c.rhy[0]||'eve'])+'.')+'</p></div>'+
+   '<div class="scr-foot"><button class="pm-btn" data-act="next">'+L('Next','Dalej')+'</button></div>';
+}
+function scrPW(i){
+  var c=COL[i], y=c.per==='y', h=HEAD[lead(i)], cn=cname(i), sh=shelf(i), t=TIER.filter(function(x){ return x.k===c.tier; })[0];
+  var cards=TIER.map(function(x){ var on=x.k===c.tier;
+    return '<button class="plan'+(on?' on':'')+'" data-act="tier" data-t="'+x.k+'"><i class="rd"></i>'+(y?'<span class="tg">−'+save(x)+'%</span>':'')+'<b>'+x.n+'</b><small>'+L('Access for '+x.u+' user'+(x.u>1?'s':''),'Dostęp dla '+x.u+(x.u===1?' osoby':' osób'))+' · '+(y?eur(x.y)+L(' a year',' rocznie'):eur(x.m)+L(' a month',' miesięcznie'))+'</small>'+(y?'<small>('+eur(x.y/12)+'/mies.)</small>':'')+'</button>'; }).join('');
+  var price=y?eur(t.y)+L(' a year',' rocznie'):eur(t.m)+L(' a month',' miesięcznie');
+  return sb()+'<div class="scr-body" style="padding:0"><div class="pw-wall"></div><div style="padding:0 20px 18px">'+
+   '<h2 class="pw-h" data-hl="head">'+L(h[0],h[1]).replace(/\{c\}/g,cn)+'</h2>'+
+   '<div class="pw-chip"><span><b>'+cn+'</b> · '+sh.s+' · '+nm(NSH[(COL[i].need[0]||'sing')])+'</span></div>'+
+   '<div class="pw-ck">'+[L('A rich, ever-growing library of songs and audio stories','Bogata, wciąż rosnąca biblioteka piosenek i słuchowisk'),L('Educational content tailored to each stage of your child’s development','Treści edukacyjne dopasowane do każdego etapu rozwoju dziecka'),L('No ads, no algorithms, no AI','Bez reklam, bez algorytmów, bez AI')].map(function(s){ return '<div>'+SV('<path d="M20 6 9 17l-5-5"/>')+'<span>'+s+'</span></div>'; }).join('')+'</div>'+
+   '<div data-hl="plans" style="border-radius:16px"><div class="pw-tog"><button class="'+(!y?'on':'')+'" data-act="per" data-p="m">'+L('Monthly','Miesięcznie')+'</button><button class="'+(y?'on':'')+'" data-act="per" data-p="y">'+L('Yearly','Rocznie')+'</button></div>'+
+   '<div class="plans">'+cards+'</div>'+
+   '<div class="tl" data-hl="trial"><div><i></i><span><b>'+L('Today','Dziś')+'</b><small>'+L('Full access for '+cn+', free','Pełny dostęp za darmo')+'</small></span></div><div><i></i><span><b>'+L('Day 5','Dzień 5')+'</b><small>'+L('We send you a reminder, 2 days before the end','Wyślemy przypomnienie, 2 dni przed końcem')+'</small></span></div><div><i></i><span><b>'+L('Day 7','Dzień 7')+'</b><small>'+t.n+': '+price+L('. Cancel any time before.','. Możesz anulować wcześniej.')+'</small></span></div></div></div>'+
+   '<div class="proof" data-hl="proof"><div class="st"><i>★★★★★</i> 4.8 · '+L('1.3K ratings on the App Store','1,3 tys. ocen w App Store')+'</div><h4>'+L('Join the 300,000 families who love pomelody!','Dołącz do 300 000 rodzin, które kochają pomelody!')+'</h4>'+
+   '<div class="rev"><p>“The only thing I regret is not buying the premium version earlier, it’s really worth the money!”</p><p class="tr">„Żałuję tylko, że wersji premium nie kupiłam wcześniej. Naprawdę jest warta swojej ceny!”</p><small>Pstrk! · App Store</small></div></div>'+
+   '<div class="legal">'+L('Payment is charged to your Apple Account at confirmation of purchase. The subscription renews automatically unless auto-renew is turned off at least 24 hours before the end of the current period. Terms of use · Privacy policy','Płatność zostanie pobrana z konta Apple po potwierdzeniu zakupu. Subskrypcja odnawia się automatycznie, chyba że wyłączysz odnawianie co najmniej 24 godziny przed końcem okresu. Regulamin · Polityka prywatności')+'</div></div></div>'+
+   '<button class="pw-x" data-act="x" aria-label="Zamknij">'+SV('<path d="M18 6 6 18M6 6l12 12"/>')+'</button>'+
+   '<div class="scr-foot sep"><button class="pm-btn" data-act="buy">'+L('Start your free trial','Rozpocznij darmowy okres próbny')+'</button><p class="fcap">'+L('7 days free, then '+price+'. Cancel any time.','7 dni za darmo, potem '+price+'. Anuluj w dowolnym momencie.')+'</p><button class="flink" data-act="restore">'+L('Renew subscription','Odnów subskrypcję')+'</button></div>';
+}
+function scrToday(i){
+  return sb()+'<div class="t-sheet"><button class="t-x" data-act="tx">'+SV('<path d="M18 6 6 18M6 6l12 12"/>')+'</button><div class="scr-body" style="padding:0">'+
+   '<h2 class="t-h">'+L('Try pomelody for 7 days for free','Wypróbuj pomelody przez 7 dni za darmo')+'</h2>'+
+   '<div class="t-rows"><div><img src="img/i-play.png" alt=""><b>'+L('New content every week.','Nowe treści co tydzień.')+'</b></div><div><img src="img/i-drum.png" alt=""><span>'+L('A rich library of <b>songs, fairy tales, radio plays, lullabies, animations.</b>','Bogata biblioteka <b>piosenek, bajek, słuchowisk, kołysanek, animacji.</b>')+'</span></div><div><img src="img/i-star.png" alt=""><span>'+L('Monthly <b>subscription included</b> of a magazine with a plastic toy.','<b>W subskrypcji</b> co miesiąc magazyn z plastikową zabawką.')+'</span></div></div>'+
+   '<div class="t-wall"></div><p class="t-join">'+L('Join the 300,000 families who love pomelody!','Dołącz do 300 000 rodzin, które kochają pomelody!')+'</p>'+
+   '<button class="t-btn" data-act="tfree">'+L('Try for free','Wypróbuj za darmo')+'</button><p class="t-sm">'+L('We will send you a reminder 2 days before the end of the trial period.','Wyślemy przypomnienie 2 dni przed końcem okresu próbnego.')+'</p>'+
+   '<div style="padding:0 18px 20px"><div class="cap-today">'+L('Opens over home after sign-in and onboarding. Same for every family.<br>Plans are on the next screen, behind Try for free.','Otwiera się na ekranie głównym. Taki sam dla każdej rodziny.<br>Plany są na kolejnym ekranie.')+'</div></div></div></div>';
+}
+function scrToday2(i){
+  var tags={starter:'−31%',basic:'−30%',premium:'−38%'};
+  return sb()+'<div class="scr-body" style="padding:0"><div class="pw-wall" style="height:120px"></div><div style="padding:0 20px 18px">'+
+   '<h2 class="pw-h" style="font-family:var(--fo);font-weight:700">'+L('Try for 7 days for free','Wypróbuj 7 dni za darmo')+'</h2>'+
+   '<div class="t-tog"><span>'+L('Monthly','Miesięcznie')+'</span><span class="on">'+L('Yearly','Rocznie')+'</span></div>'+
+   '<div class="pw-ck">'+[L('A rich, ever-growing library of songs and audio stories','Bogata, wciąż rosnąca biblioteka piosenek i słuchowisk'),L('Educational content tailored to each stage of your child’s development','Treści edukacyjne dopasowane do każdego etapu rozwoju dziecka'),L('No ads, no algorithms, no AI','Bez reklam, bez algorytmów, bez AI')].map(function(s){ return '<div>'+SV('<path d="M20 6 9 17l-5-5"/>')+'<span>'+s+'</span></div>'; }).join('')+'</div>'+
+   '<div class="plans" style="margin-top:22px">'+TIER.map(function(x,k){ return '<div class="plan'+(k===0?' on':'')+'"><i class="rd"></i><span class="tg">'+tags[x.k]+'</span><b>'+x.n+'</b><small>'+L('Access for '+x.u+' user'+(x.u>1?'s':''),'Dostęp dla '+x.u+(x.u===1?' osoby':' osób'))+' - '+eur(x.y)+'</small><small>('+eur(x.y/12)+'/mies.)</small></div>'; }).join('')+'</div>'+
+   '<div class="cap-today">'+L('Today: the second screen, behind Try for free.','Dziś: drugi ekran, za przyciskiem „Wypróbuj za darmo”.<br>Te same ceny, inna kolejność.')+'</div></div></div>'+
+   '<button class="pw-x" data-act="t2x" aria-label="Zamknij">'+SV('<path d="M18 6 6 18M6 6l12 12"/>')+'</button>'+
+   '<div class="scr-foot sep"><button class="pm-btn" data-act="tbuy">'+L('Start your free trial','Rozpocznij darmowy okres próbny')+'</button><button class="flink" data-act="restore">'+L('Renew subscription','Odnów subskrypcję')+'</button></div>';
+}
+function ico(n){ return { g:'<svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.5 12.3c0-.8-.1-1.5-.2-2.2H12v4.2h5.9a5 5 0 0 1-2.2 3.3v2.7h3.5c2.1-1.9 3.3-4.7 3.3-8z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.2-2.7l-3.5-2.7c-1 .7-2.2 1.1-3.7 1.1-2.9 0-5.3-1.9-6.2-4.5H2.2v2.8A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14.2a6.6 6.6 0 0 1 0-4.3V7.1H2.2a11 11 0 0 0 0 9.9z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.1-3.1A11 11 0 0 0 2.2 7.1l3.6 2.8C6.7 7.3 9.1 5.4 12 5.4z"/></svg>',
+  f:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#1877F2"/><path fill="#fff" d="M13.4 23v-8.2h2.7l.4-3.2h-3.1V9.6c0-.9.3-1.6 1.6-1.6h1.6V5.2a22 22 0 0 0-2.4-.1c-2.4 0-4 1.4-4 4.1v2.4H7.5v3.2h2.7V23z"/></svg>',
+  a:'<svg viewBox="0 0 24 24"><path fill="#111" d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9a4.8 4.8 0 0 0-3.7-2c-1.6-.2-3.1.9-3.9.9s-2-.9-3.4-.9a5 5 0 0 0-4.2 2.6c-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6s1.8-.8 3.4-.8 2 .8 3.4.8 2.2-1.3 3.1-2.5a11 11 0 0 0 1.4-2.9 4.5 4.5 0 0 1-2.8-4.1zM13.9 5c.7-.9 1.2-2 1.1-3.2-1 0-2.3.7-3 1.5a4.3 4.3 0 0 0-1.1 3.1c1.1.1 2.3-.6 3-1.4z"/></svg>',
+  e:'<svg viewBox="0 0 24 24" fill="none" stroke="#2D1D32" stroke-width="2"><rect x="2.5" y="5" width="19" height="14" rx="1.5"/><path d="m3 6 9 7 9-7"/></svg>' }[n]; }
+function scrSignin(i){
+  var b=[['g','Continue with Google','Kontynuuj z Google'],['f','Continue with Facebook','Kontynuuj z Facebookiem'],['a','Continue with Apple','Kontynuuj z Apple'],['e','Continue with E-mail','Kontynuuj z e-mailem']];
+  return sb()+'<div class="pm-wel" style="padding-top:6px"><i class="pm-ring" style="width:96px;height:96px;margin-top:10px"></i><h2 style="font-size:24px">'+L('Your 7 free days have started. Sign in to save '+cname(i)+'’s library.','Twoje 7 darmowych dni trwa. Zaloguj się, żeby zapisać bibliotekę.')+'</h2>'+
+   '<div style="width:100%;margin-top:22px">'+b.map(function(x){ return '<button class="pm-sso" data-act="sso">'+ico(x[0])+L(x[1],x[2])+'</button>'; }).join('')+'</div></div><p class="pm-legal">'+L('To continue accept <b>Terms of use</b> and <b>Privacy policy</b>','Kontynuując akceptujesz <b>Regulamin</b> i <b>Politykę prywatności</b>')+'</p>';
+}
+function scrStay(i){
+  return sb()+'<div class="scr-body">'+dots(9)+'<h2 class="pm-h">'+L('Stay updated','Bądź na bieżąco')+'</h2><img class="pm-ill" src="img/envelope.jpg" style="height:150px;margin-top:26px;mix-blend-mode:multiply" alt="">'+
+   '<p class="pm-p">'+L('Join the special list - we will inform you about special offers, new functionalities, and we will help you fully enter the world of pomelody.','Dołącz do specjalnej listy - poinformujemy Cię o ofertach i nowościach i pomożemy Ci w pełni wejść w świat pomelody.')+'</p></div>'+
+   '<div class="scr-foot"><button class="pm-btn" data-act="stay">'+L('Sign up','Zapisz się')+'</button><button class="pm-skip" style="color:var(--p-coral)" data-act="stay">'+L('Not now','Nie teraz')+'</button></div>';
+}
+function scrHome(i){
+  var c=COL[i], sh=shelf(i), ages=[['baby1','0-6 m-cy'],['baby2','6-18 m-cy'],['baby3','1,5-3 lata']];
+  return sb()+'<div class="hm"><div class="hm-search">'+SV('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>')+L('Search','Szukaj')+'</div>'+
+   '<h2>'+L('Welcome, '+(c.parent||'')+'!','Witaj, '+(c.parent||'')+'!')+'</h2>'+
+   '<div class="hm-tiles"><div><img src="img/t-drum.png" alt="">'+L('What’s new?','Co nowego?')+'</div><div><img src="img/t-mar.png" alt="">Zajęcia</div><div><img src="img/t-book.png" alt="">My products</div></div>'+
+   '<div class="hm-ban"><div><b>Nehemiasz</b><small>Nowa opowieść biblijna w aplikacji</small></div><img src="img/nehem.jpg" alt=""></div>'+
+   '<h3>Zacznij tu</h3><div class="hm-age">'+ages.map(function(a){ return '<div'+(a[1]===sh.s&&!c.today?' class="me" data-me="'+cname(i)+'"':'')+'><img src="img/'+a[0]+'.png" alt="">'+a[1]+'</div>'; }).join('')+'</div>'+
+   '<h3>'+L('What are you doing?','Co teraz robicie?')+'</h3></div>'+
+   '<div class="tabbar"><div class="on">'+SV('<path d="M3 11 12 3l9 8v10H3z"/>')+L('Home','Start')+'</div><div>'+SV('<path d="M9 18V5l10-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/>')+'Audio</div><div>'+SV('<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/>')+L('Favourites','Ulubione')+'</div><div>'+SV('<rect x="3" y="6" width="18" height="13" rx="2"/><path d="m10 10 4 2.5-4 2.5z"/>')+'Video</div><div>'+SV('<circle cx="12" cy="9" r="5"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>')+L('Profile','Profil')+'</div></div>'+
+   (c.notif?'<div class="sys" data-hl="notif"><div class="sys-in"><h5>'+L('“Pomelody” Would Like to Send You Notifications','„Pomelody” chce wysyłać Ci powiadomienia')+'</h5><p>'+L('Notifications may include alerts, sounds, and icon badges. These can be configured in Settings.','Powiadomienia mogą zawierać alerty, dźwięki i plakietki. Możesz je skonfigurować w Ustawieniach.')+'</p><div class="bt"><button data-act="nf">'+L('Don’t Allow','Nie pozwalaj')+'</button><button data-act="nf">'+L('Allow','Pozwól')+'</button></div></div></div>':'');
+}
+
+/* which screen each phone shows for a step */
+var BG={ reel:'black', start:'coral', signin:'coral', name:'yel', intro:'yel', payoff:'yel', stay:'pink', pw:'dark', today:'dark', today2:'dark', home:'dark' };
+var NEXT={ start:'name', name:'intro', intro:'need', need:'rhy', rhy:'sup', sup:'child', child:'load', payoff:'pw' };
+function stepScr(st,i){ if(st==='arrive') return PH[i].src==='ad'?'reel':'start'; return st; }
+function phoneHTML(i){
+  var c=COL[i], s=c.scr, inner;
+  if(s==='reel') inner=scrReel(i); else if(s==='start') inner=scrStart(i); else if(s==='name') inner=scrName(i); else if(s==='intro') inner=scrIntro(i);
+  else if(s==='need') inner=scrNeed(i); else if(s==='rhy') inner=scrRhy(i); else if(s==='sup') inner=scrSup(i); else if(s==='child') inner=scrChild(i);
+  else if(s==='load') inner=scrLoad(i); else if(s==='payoff') inner=scrPayoff(i); else if(s==='today') inner=scrToday(i); else if(s==='today2') inner=scrToday2(i);
+  else if(s==='signin') inner=scrSignin(i); else if(s==='stay') inner=scrStay(i); else if(s==='home') inner=scrHome(i); else inner=scrPW(i);
+  return '<div class="phone'+(G.theme==='light'?' lt':'')+'"><section class="scr bg-'+(BG[s]||'cream')+'" data-s="'+s+'">'+inner+'<div class="toast"></div></section></div>';
+}
+function drawCol(i,keep){
+  var box=$('#trio .tcol[data-i="'+i+'"] .pbox'); if(!box) return;
+  var ph=box.querySelector('.phone'), b=box.querySelector('.scr-body,.hm'), y=b?b.scrollTop:0;
+  var tmp=document.createElement('div'); tmp.innerHTML=phoneHTML(i);
+  if(ph) box.replaceChild(tmp.firstChild,ph); else box.insertBefore(tmp.firstChild,box.firstChild);
+  if(keep){ var nb=box.querySelector('.scr-body,.hm'); if(nb) nb.scrollTop=y; }
+  $$('input[data-f]',box).forEach(function(inp){ inp.addEventListener('input',function(){ COL[i][inp.dataset.f]=inp.value; $('#trio .tcol[data-i="'+i+'"] .apill .tx').textContent=pillText(i); }); });
+  if(COL[i].scr==='load') runLoad(i);
+}
+function go(i,s){ var c=COL[i]; clearTimeout(c.lt); c.scr=s; if(s==='load') c.ld=0; drawCol(i); }
+function runLoad(i){
+  var c=COL[i], n=loadLines(i).length, k=walk.on?0.5:1;
+  clearTimeout(c.lt);
+  c.lt=setTimeout(function step(){
+    if(c.scr!=='load') return;
+    if(c.ld<n){ c.ld++; var box=$('#trio .tcol[data-i="'+i+'"]'); $$('.ld-list div',box).forEach(function(d,j){ d.classList.toggle('ok',j<c.ld); }); var bar=$('.ld-bar i',box); if(bar) bar.style.width=Math.round(100*c.ld/n)+'%'; c.lt=setTimeout(step,620*k); }
+    else { c.lt=setTimeout(function(){ if(c.scr==='load') go(i,'payoff'); },500*k); }
+  },420*k);
+}
+function pillText(i){ var p=PH[i], c=COL[i]; return p.src==='ad'?p.pill:(c.child||'')+' · '+shelf(i).s+' · '+(c.need[0]?nm(NSH[c.need[0]]):''); }
+function renderTrio(){
+  $('#trio').innerHTML=PH.map(function(p,i){
+    return '<div class="tcol" data-i="'+i+'" style="--ring:'+p.ring+'"><div class="apill"><span class="mt'+(p.src==='ad'?' ad':'')+'">'+p.mt+'</span><span class="tx">'+pillText(i)+'</span></div><div class="pbox"><i class="finger"></i></div><div class="tlab"><b>'+p.lab[0]+'</b><span>'+p.lab[1]+'</span></div></div>';
+  }).join('');
+  PH.forEach(function(p,i){ drawCol(i); });
+}
+function paintSteps(){ $$('#steps button').forEach(function(b){ b.classList.toggle('on',b.dataset.st===G.step); }); $('#stcap').innerHTML=TCAP[G.step]||''; $$('#trio .tcol').forEach(function(t){ t.classList.toggle('ring',G.step!=='today'); }); }
+function setStep(st){ G.step=st; PH.forEach(function(p,i){ initCol(i); COL[i].scr=stepScr(st,i); if(st==='home') COL[i].notif=true; }); paintSteps(); PH.forEach(function(p,i){ clearTimeout(COL[i].lt); drawCol(i); $('#trio .tcol[data-i="'+i+'"] .apill .tx').textContent=pillText(i); }); }
+function toast(i,m){ var e=$('#trio .tcol[data-i="'+i+'"] .toast'); if(!e) return; e.textContent=m; e.classList.add('show'); clearTimeout(e._t); e._t=setTimeout(function(){ e.classList.remove('show'); },2100); }
+
+/* taps inside a phone change only that phone */
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-act]'); if(!t) return; var col=t.closest('.tcol'); if(!col) return;
+  var i=+col.dataset.i, c=COL[i], a=t.dataset.act;
+  if(a==='install') go(i,'start');
+  else if(a==='next'){ if(NEXT[c.scr]) go(i,NEXT[c.scr]); }
+  else if(a==='opt'){ var arr=c[t.dataset.key], k=t.dataset.k, j=arr.indexOf(k); if(j>-1) arr.splice(j,1); else arr.push(k); t.classList.toggle('on'); $('.apill .tx',col).textContent=pillText(i); }
+  else if(a==='add') toast(i,L('A second child card opens here','Tu pojawia się karta drugiego dziecka'));
+  else if(a==='per'){ c.per=t.dataset.p; drawCol(i,true); }
+  else if(a==='tier'){ c.tier=t.dataset.t; drawCol(i,true); }
+  else if(a==='buy'){ toast(i,L('Apple’s purchase sheet opens here','Tu otwiera się arkusz zakupu Apple')); setTimeout(function(){ if(c.scr==='pw') go(i,'signin'); },1100); }
+  else if(a==='sso') go(i,'stay');
+  else if(a==='stay'){ c.notif=true; go(i,'home'); }
+  else if(a==='x'){ c.notif=true; go(i,'home'); toast(i,L('Closed straight into the app. No second paywall.','Prosto do aplikacji. Bez drugiego paywalla.')); }
+  else if(a==='nf'){ c.notif=false; drawCol(i,true); toast(i,L('Asked once they are in the app','Zapytaliśmy dopiero w aplikacji')); }
+  else if(a==='restore') toast(i,L('Restores an earlier purchase','Przywraca wcześniejszy zakup'));
+  else if(a==='tfree') go(i,'today2');
+  else if(a==='t2x') go(i,'today');
+  else if(a==='tbuy') toast(i,L('Apple’s purchase sheet opens here','Tu otwiera się arkusz zakupu Apple'));
+  else if(a==='tx'){ c.today=true; c.notif=false; go(i,'home'); toast(i,L('Today: back to home. No plans were seen.','Dziś: powrót do ekranu głównego.')); }
+});
+
+function fit(){ var w=document.documentElement.clientWidth||innerWidth; if(w<300) w=Math.max(w,(screen&&screen.width)||390,320); var sc=w>=1240?0.8:w>=900?(w-160)/(3*390):(w-48)/390; sc=Math.min(0.8,Math.max(0.42,sc)); $('#trio').style.setProperty('--sc',sc.toFixed(3)); }
+
+/* ---- idea cards and list ---- */
+function ideaRow(d){ return '<div class="row"><span class="out">'+d.o+' <small>'+d.u+'</small></span><span class="see">Zobacz na telefonach →</span></div>'; }
+$('#ideas').innerHTML=IDEAS.map(function(d,i){ return '<div class="idea" data-idea="'+i+'"><div class="n">Pomysł '+(i+1)+' z 5</div><h3>'+d.t+'</h3><p>'+d.p+'</p>'+ideaRow(d)+'<div class="kept">'+d.kept+'</div></div>'; }).join('');
+$('#list').innerHTML=IDEAS.map(function(d,i){ return '<div class="it" data-idea="'+i+'"><div class="em">0'+(i+1)+'</div><div><h3>'+d.t+'</h3><p>'+d.p+'</p>'+ideaRow(d)+'</div></div>'; }).join('');
+function showIdea(n){
+  var d=IDEAS[n]; stopWalk(); showView('pw'); setStep(d.st);
+  setTimeout(function(){
+    $('#trio').scrollIntoView({behavior:'smooth',block:'start'});
+    $$('#trio [data-hl="'+d.hl+'"]').forEach(function(el){
+      var b=el.closest('.scr-body'); if(b) b.scrollTop=Math.max(0,el.offsetTop-120);
+      var tg=d.hl==='notif'?el.querySelector('.sys-in'):el;
+      tg.classList.remove('pulse'); void tg.offsetWidth; tg.classList.add('pulse');
+    });
+  },80);
+}
+document.addEventListener('click',function(e){ var c=e.target.closest('[data-idea]'); if(c) showIdea(+c.dataset.idea); });
+document.addEventListener('click',function(e){ var b=e.target.closest('[data-adgo]'); if(!b) return; stopWalk(); showView('pw'); setStep('arrive');
+  setTimeout(function(){ var col=$('#trio .tcol[data-i="0"]'); col.scrollIntoView({behavior:'smooth',block:'center',inline:'center'}); col.querySelector('.phone').classList.add('pulse'); },80); });
+
+/* ---- views ---- */
+function showView(v){ $$('.view').forEach(function(x){ x.classList.remove('on'); }); $('#view-'+v).classList.add('on'); $$('.tabs button').forEach(function(b){ b.classList.toggle('on',b.dataset.v===v); });
+  if(v!=='pw') stopWalk();
+  var q=new URLSearchParams(location.search); q.delete('open'); if(v==='pw') q.set('view','proto'); else q.delete('view'); history.replaceState(null,'',location.pathname+(q.toString()?'?'+q:'')); scrollTo(0,0); fit(); }
+$$('.tabs button').forEach(function(b){ b.addEventListener('click',function(){ showView(b.dataset.v); }); });
+$$('[data-open]').forEach(function(b){ b.addEventListener('click',function(){ showView(b.dataset.open); }); });
+$$('#steps button').forEach(function(b){ b.addEventListener('click',function(){ stopWalk(); setStep(b.dataset.st); }); });
+$$('#theme button').forEach(function(b){ b.addEventListener('click',function(){ G.theme=b.dataset.th; $$('#theme button').forEach(function(x){ x.classList.toggle('on',x===b); }); $$('#trio .phone').forEach(function(p){ p.classList.toggle('lt',G.theme==='light'); }); }); });
+$$('#lang button').forEach(function(b){ b.addEventListener('click',function(){ G.lang=b.dataset.l; $$('#lang button').forEach(function(x){ x.classList.toggle('on',x===b); }); PH.forEach(function(p,i){ drawCol(i,true); $('#trio .tcol[data-i="'+i+'"] .apill .tx').textContent=pillText(i); }); }); });
+
+/* ---- the 30-second walkthrough: drives the real phones ---- */
+var walk={on:false,tok:0};
+function wait(ms,tk){ return new Promise(function(res,rej){ setTimeout(function(){ tk===walk.tok?res():rej('stop'); },ms); }); }
+function cap(t,p){ $('#dtx').textContent=t; $('#dpr').style.width=p+'%'; }
+async function tap(i,sel,tk){
+  var col=$('#trio .tcol[data-i="'+i+'"]'), box=$('.pbox',col), el=$(sel,box), f=$('.finger',box); if(!el) return;
+  var b=box.getBoundingClientRect(), r=el.getBoundingClientRect();
+  f.classList.add('on'); f.style.left=(r.left-b.left+r.width/2)+'px'; f.style.top=(r.top-b.top+r.height/2)+'px';
+  await wait(340,tk); f.classList.add('press'); await wait(110,tk); f.classList.remove('press'); el.click(); await wait(150,tk);
+}
+function all(s){ PH.forEach(function(p,i){ if(i!==1) go(i,s); }); }
+async function next(s,tk){ await tap(1,'.scr-foot [data-act=next]',tk); all(s); }
+async function scrollTo2(i,sel,tk){ var box=$('#trio .tcol[data-i="'+i+'"] .pbox'), b=$('.scr-body',box), el=$(sel,box); if(!b||!el) return; var to=Math.max(0,el.offsetTop-90), fr=b.scrollTop, t0=performance.now(); while(true){ var k=Math.min(1,(performance.now()-t0)/600); b.scrollTop=fr+(to-fr)*(1-Math.pow(1-k,3)); if(k>=1) break; await wait(16,tk); } }
+async function startWalk(){
+  stopWalk(); var tk=++walk.tok; walk.on=true; showView('pw'); $('#dcap').classList.add('on'); $('#wt').classList.add('on'); $('#wt').textContent='■ Zatrzymaj przegląd';
+  var t0=performance.now();
+  try{
+    setStep('arrive'); $('#trio').scrollIntoView({behavior:'smooth',block:'center'});
+    cap('Trzy nowe rodziny: jedna z reklamy Abecadła, dwie z App Store. Bez okien systemowych i bez logowania.',6); await wait(1900,tk);
+    await tap(1,'[data-act=next]',tk); go(0,'name'); go(2,'name');
+    cap('Wasz ekran z imieniem i Wasze pytania, bez zmian.',16); await wait(500,tk);
+    await next('intro',tk); await wait(250,tk); await next('need',tk);
+    cap('Wybory należą do rodziny. Instalacja z reklamy Abecadła ma już zaznaczone treści edukacyjne.',28); await wait(500,tk);
+    await tap(1,'[data-k=story]',tk); await wait(250,tk); await tap(1,'[data-k=story]',tk);
+    await next('rhy',tk); await wait(200,tk); await next('sup',tk); await wait(200,tk); await next('child',tk);
+    cap('Imię i rok urodzenia wybierają półkę wiekową.',40); await wait(700,tk);
+    await next('load',tk);
+    cap('Ładowanie powtarza każdą odpowiedź, a rakieta leci.',52); await wait(2700,tk);
+    PH.forEach(function(p,i){ if(COL[i].scr!=='payoff') go(i,'payoff'); });
+    cap('Start dziecka zastępuje „Make yourself at home”.',62); await wait(1300,tk);
+    await next('pw',tk);
+    cap('Paywall nazywa dziecko i to, co wybrała rodzina.',72); await wait(1900,tk);
+    await Promise.all(PH.map(function(p,i){ return scrollTo2(i,'[data-hl=plans]',tk); }));
+    cap('Plany, przełącznik i oś 7 dni na jednym ekranie. Roczny Starter, −31%.',84); await wait(600,tk);
+    await tap(1,'[data-p=m]',tk); await wait(400,tk); await tap(1,'[data-p=y]',tk); await wait(900,tk);
+    cap('X prowadzi prosto do aplikacji. O powiadomienia pytamy tam, nie przy pierwszym otwarciu.',95); await tap(1,'[data-act=x]',tk); all('home'); PH.forEach(function(p,i){ if(i!==1){ COL[i].notif=true; drawCol(i); } }); await wait(2000,tk);
+    cap('To cała ścieżka. Dotknij dowolnego telefonu i wypróbuj sam.',100); console.log('walkthrough ms',Math.round(performance.now()-t0));
+    await wait(1400,tk); stopWalk(); setStep('pw');
+  }catch(e){}
+}
+function stopWalk(){ if(!walk.on) return; walk.on=false; walk.tok++; $('#dcap').classList.remove('on'); $('#wt').classList.remove('on'); $('#wt').textContent='▶ 30-sekundowy przegląd'; $$('.finger').forEach(function(f){ f.classList.remove('on'); }); }
+$$('[data-walk]').forEach(function(b){ b.addEventListener('click',function(){ if(walk.on&&b.id==='wt'){ stopWalk(); return; } startWalk(); }); });
+document.addEventListener('pointerdown',function(e){ if(!walk.on||!e.isTrusted) return; if(e.target.closest('#wt')) return; if(e.target.closest('#trio,#steps,#theme,#lang,.tabs,.nav')) stopWalk(); },true);
+
+PH.forEach(function(p,i){ COL[i].scr=stepScr(G.step,i); });
+renderTrio(); fit(); paintSteps(); addEventListener('resize',fit); addEventListener('load',fit); addEventListener('pageshow',fit); if(window.ResizeObserver) new ResizeObserver(fit).observe(document.documentElement);
+(function(){ var q=new URLSearchParams(location.search); if(q.get('view')==='proto'||q.get('open')==='proto') showView('pw'); if(q.get('step')) setStep(q.get('step')); })();
+</script>
+<script>
+/* GitHub Pages lets browsers keep this page for 10 minutes; if a newer build is live, reload onto it */
+var BUILD='pl1';
+fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){ return r.text(); }).then(function(h){
+  var m=h.match(/var BUILD='([^']+)'/); if(m && m[1]!==BUILD){ var q=new URLSearchParams(location.search); q.set('v',m[1]); location.replace(location.pathname+'?'+q.toString()); }
+}).catch(function(){});
+</script>
+</body>
+</html>
